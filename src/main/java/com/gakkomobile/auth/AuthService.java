@@ -52,7 +52,7 @@ public class AuthService {
         user.setIndividualBankAccount(request.individualBankAccount());
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(Role.USER);
+        user.setRole(Role.STUDENT);
 
         repository.save(user);
         var jwtToken = jwtService.generateToken(user);

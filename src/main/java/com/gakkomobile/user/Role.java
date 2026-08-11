@@ -1,7 +1,9 @@
 package com.gakkomobile.user;
 
 public enum Role {
-    USER,
-    ADMIN,
-    GUEST
+    STUDENT,
+    EMPLOYEE,
+    CANDIDATE,
+    GUEST,
+    ADMIN
 }
