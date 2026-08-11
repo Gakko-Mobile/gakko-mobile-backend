@@ -2,14 +2,18 @@ package com.gakkomobile.auth;
 
 import com.gakkomobile.auth.dto.AuthResponse;
 import com.gakkomobile.auth.dto.LoginRequest;
+import com.gakkomobile.auth.dto.RefreshTokenRequest;
 import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.exception.InvalidRefreshTokenException;
 import com.gakkomobile.exception.UserAlreadyExistsException;
+import com.gakkomobile.exception.UserNotFoundException;
 import com.gakkomobile.security.jwt.JwtService;
 import com.gakkomobile.security.token.BlacklistedToken;
 import com.gakkomobile.security.token.BlacklistedTokenRepository;
 import com.gakkomobile.user.Role;
 import com.gakkomobile.user.User;
 import com.gakkomobile.user.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,26 +41,43 @@ public class AuthService {
         this.blacklistedTokenRepository = blacklistedTokenRepository;
     }
 
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (this.repository.existsByIndex(request.index())) {
-            throw new UserAlreadyExistsException("User with index " + request.index() + " already exists");
-        }
         if (this.repository.existsByEmail(request.email())) {
             throw new UserAlreadyExistsException("User with email " + request.email() + " already exists");
+        }
+        if (request.indexNumber() != null && !request.indexNumber().isBlank()) {
+            if (repository.existsByIndexNumber(request.indexNumber())) {
+                throw new UserAlreadyExistsException(
+                        "A user with index " + request.indexNumber() + " already exists."
+                );
+            }
+        }
+        if (request.pesel() != null && !request.pesel().isBlank()) {
+            if (repository.existsByPesel(request.pesel())) {
+                throw new UserAlreadyExistsException(
+                        "A user with PESEL " + request.pesel() + " already exists."
+                );
+            }
         }
 
         User user = new User();
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
-        user.setIndex(request.index());
-        user.setIndividualBankAccount(request.individualBankAccount());
         user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+
+        user.setIndexNumber(request.indexNumber());
+        user.setPesel(request.pesel());
+
         user.setRole(Role.STUDENT);
 
         repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return new AuthResponse(accessToken, refreshToken);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -65,20 +86,55 @@ public class AuthService {
         );
         var user = repository.findByEmail(request.email())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return new AuthResponse(accessToken, refreshToken);
     }
 
-    public boolean logout(String authHeader) {
+    @Transactional
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.refreshToken();
+
+        if (blacklistedTokenRepository.existsById(refreshToken)) {
+            throw new InvalidRefreshTokenException("Refresh token has been revoked.");
+        }
+
+        String userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail != null) {
+            User user = repository.findByEmail(userEmail)
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                String accessToken = jwtService.generateAccessToken(user);
+                return new AuthResponse(accessToken, refreshToken);
+            }
+        }
+        throw new InvalidRefreshTokenException("Invalid refresh token.");
+    }
+
+    @Transactional
+    public boolean logout(String authHeader, String refreshToken) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return false;
         }
 
-        String jwt = authHeader.substring(7);
+        String accessToken = authHeader.substring(7);
 
-        Date expiresAt = jwtService.extractExpiration(jwt);
+        try {
+            Date accessExpiresAt = jwtService.extractExpiration(accessToken);
+            blacklistedTokenRepository.save(new BlacklistedToken(accessToken, accessExpiresAt));
+        } catch (Exception e) {
+            // If the token is already expired or malformed, we can safely ignore it.
+        }
 
-        blacklistedTokenRepository.save(new BlacklistedToken(jwt, expiresAt));
+        try {
+            Date refreshExpiresAt = jwtService.extractExpiration(refreshToken);
+            blacklistedTokenRepository.save(new BlacklistedToken(refreshToken, refreshExpiresAt));
+        } catch (Exception e) {
+            // Same ignore here.
+        }
 
         return true;
     }

@@ -1,8 +1,6 @@
 package com.gakkomobile.auth;
 
-import com.gakkomobile.auth.dto.AuthResponse;
-import com.gakkomobile.auth.dto.LoginRequest;
-import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.auth.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +26,18 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
-        if (!authService.logout(authHeader)) {
+    public ResponseEntity<String> logout(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @Valid @RequestBody LogoutRequest request
+    ) {
+        if (!authService.logout(authHeader, request.refreshToken())) {
             return ResponseEntity.badRequest().body("No token provided");
         }
         return ResponseEntity.ok("Successfully logged out");
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request));
     }
 }

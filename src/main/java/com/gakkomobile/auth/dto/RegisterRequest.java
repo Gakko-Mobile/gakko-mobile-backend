@@ -1,24 +1,28 @@
 package com.gakkomobile.auth.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 
 public record RegisterRequest(
-        @NotBlank String firstName,
-        @NotBlank String lastName,
-        String profilePhoto,
+        @NotBlank
+        @Size(max = 100)
+        String firstName,
 
         @NotBlank
+        @Size(max = 100)
+        String lastName,
+
         @Pattern(regexp = "^s\\d{5}$", message = "Index must follow the pattern sXXXXX")
-        String index,
+        String indexNumber,
 
-        @NotBlank
-        @Pattern(regexp = "^\\d{26}$", message = "Bank account must contain exactly 26 digits")
-        String individualBankAccount,
+        @Pattern(regexp = "^\\d{11}$", message = "PESEL must contain exactly 11 digits")
+        String pesel,
+
+//        @Pattern(regexp = "^\\d{26}$", message = "Bank account must contain exactly 26 digits")
+//        String individualBankAccount,
 
         @NotBlank
         @Email(message = "Must be a well-formed email address")
+        @Size(max = 255)
         String email,
 
         @NotBlank
