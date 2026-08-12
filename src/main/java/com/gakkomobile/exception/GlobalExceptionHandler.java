@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Validation failed",
+                ExceptionErrorConstants.VALIDATION_FAILED,
                 LocalDateTime.now(),
                 errors
         );
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Validation failed",
+                ExceptionErrorConstants.VALIDATION_FAILED,
                 LocalDateTime.now(),
                 errors
         );
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "Invalid email or password",
+                ExceptionErrorConstants.BAD_CREDENTIALS,
                 LocalDateTime.now(),
                 null
         );
@@ -90,21 +90,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
+                ExceptionErrorConstants.USER_NOT_FOUND,
                 LocalDateTime.now(),
                 null
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
-//        ErrorResponse error = new ErrorResponse(
-//                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                "An unexpected error occurred: " + ex.getMessage(),
-//                LocalDateTime.now(),
-//                null
-//        );
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-//    }
 }

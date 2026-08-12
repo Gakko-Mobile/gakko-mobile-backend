@@ -4,6 +4,7 @@ import com.gakkomobile.auth.dto.AuthResponse;
 import com.gakkomobile.auth.dto.LoginRequest;
 import com.gakkomobile.auth.dto.RefreshTokenRequest;
 import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.exception.InvalidRefreshTokenException;
 import com.gakkomobile.exception.UserAlreadyExistsException;
 import com.gakkomobile.exception.UserNotFoundException;
@@ -117,16 +118,16 @@ public class AuthService {
         String refreshToken = request.refreshToken();
 
         if (blacklistedTokenRepository.existsById(refreshToken)) {
-            throw new InvalidRefreshTokenException("Refresh token has been revoked.");
+            throw new InvalidRefreshTokenException(ExceptionErrorConstants.REVOKED_REFRESH_TOKEN);
         }
 
         String userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
             User user = repository.findByEmail(userEmail)
-                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+                    .orElseThrow(UserNotFoundException::new);
 
             if (!user.getRefreshToken().equals(refreshToken)) {
-                throw new InvalidRefreshTokenException("Invalid refresh token.");
+                throw new InvalidRefreshTokenException(ExceptionErrorConstants.INVALID_REFRESH_TOKEN);
             }
 
             if (jwtService.isTokenValid(refreshToken, user)) {
@@ -134,7 +135,7 @@ public class AuthService {
                 return new AuthResponse(accessToken, refreshToken);
             }
         }
-        throw new InvalidRefreshTokenException("Invalid refresh token.");
+        throw new InvalidRefreshTokenException(ExceptionErrorConstants.INVALID_REFRESH_TOKEN);
     }
 
     @Transactional
