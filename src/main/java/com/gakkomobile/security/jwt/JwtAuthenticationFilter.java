@@ -1,11 +1,17 @@
 package com.gakkomobile.security.jwt;
 
 import com.gakkomobile.security.token.BlacklistedTokenRepository;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,33 +19,23 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
+
+import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final HandlerExceptionResolver exceptionResolver;
     private final BlacklistedTokenRepository blacklistedTokenRepository;
-
-    public JwtAuthenticationFilter(
-            JwtService jwtService,
-            UserDetailsService userDetailsService,
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
-            BlacklistedTokenRepository blacklistedTokenRepository) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-        this.exceptionResolver = exceptionResolver;
-        this.blacklistedTokenRepository = blacklistedTokenRepository;
-    }
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-    ) {
+    ) throws ServletException, IOException {
         try {
             final String authHeader = request.getHeader("Authorization");
 
@@ -69,10 +65,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-            filterChain.doFilter(request, response);
-
-        } catch (Exception ex) {
-            exceptionResolver.resolveException(request, response, null, ex);
+        } catch (ExpiredJwtException e) {
+            logger.warn("JWT token is expired: " + e.getMessage());
+        } catch (SignatureException e) {
+            logger.warn("Invalid JWT signature: " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.warn("Invalid JWT token structure: " + e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.warn("Unsupported JWT token: " + e.getMessage());
+        } catch (JwtException e) {
+            logger.warn("JWT error: " + e.getMessage());
         }
+
+        filterChain.doFilter(request, response);
     }
 }
