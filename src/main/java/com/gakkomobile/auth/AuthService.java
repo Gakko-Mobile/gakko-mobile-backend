@@ -13,6 +13,7 @@ import com.gakkomobile.security.token.BlacklistedTokenRepository;
 import com.gakkomobile.user.Role;
 import com.gakkomobile.user.User;
 import com.gakkomobile.user.UserRepository;
+import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -72,23 +73,41 @@ public class AuthService {
 
         user.setRole(Role.STUDENT);
 
-        repository.save(user);
-
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
+
+        user.setRefreshToken(refreshToken);
+
+        repository.save(user);
 
         return new AuthResponse(accessToken, refreshToken);
     }
 
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        var user = repository.findByEmail(request.email())
+        User user = repository.findByEmail(request.email())
                 .orElseThrow();
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
+
+        try {
+            String oldRefreshToken = user.getRefreshToken();
+            Date oldTokenExpiration = jwtService.extractExpiration(oldRefreshToken);
+
+            blacklistedTokenRepository.save(
+                    new BlacklistedToken(oldRefreshToken, oldTokenExpiration)
+            );
+        } catch (JwtException e) {
+            // safe ignore
+        }
+
+        user.setRefreshToken(refreshToken);
+
+        repository.save(user);
 
         return new AuthResponse(accessToken, refreshToken);
     }
@@ -105,6 +124,10 @@ public class AuthService {
         if (userEmail != null) {
             User user = repository.findByEmail(userEmail)
                     .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+            if (!user.getRefreshToken().equals(refreshToken)) {
+                throw new InvalidRefreshTokenException("Invalid refresh token.");
+            }
 
             if (jwtService.isTokenValid(refreshToken, user)) {
                 String accessToken = jwtService.generateAccessToken(user);
@@ -125,14 +148,14 @@ public class AuthService {
         try {
             Date accessExpiresAt = jwtService.extractExpiration(accessToken);
             blacklistedTokenRepository.save(new BlacklistedToken(accessToken, accessExpiresAt));
-        } catch (Exception e) {
+        } catch (JwtException e) {
             // If the token is already expired or malformed, we can safely ignore it.
         }
 
         try {
             Date refreshExpiresAt = jwtService.extractExpiration(refreshToken);
             blacklistedTokenRepository.save(new BlacklistedToken(refreshToken, refreshExpiresAt));
-        } catch (Exception e) {
+        } catch (JwtException e) {
             // Same ignore here.
         }
 

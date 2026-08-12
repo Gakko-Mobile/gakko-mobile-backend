@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class BlacklistedToken {
     @Id
-    @Column(name = "token")
+    @Column(name = "token", columnDefinition = "TEXT")
     private String token;
 
     @Column(name = "expires_at", nullable = false)

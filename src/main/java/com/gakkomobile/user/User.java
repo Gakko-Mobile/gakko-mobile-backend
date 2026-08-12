@@ -53,6 +53,9 @@ public class User implements UserDetails {
     @Column(name = "biometric_token", columnDefinition = "TEXT")
     private String biometricToken;
 
+    @Column(name = "refresh_token", columnDefinition = "TEXT", unique = true)
+    private String refreshToken;
+
     @Column(name = "mfa_enabled", nullable = false)
     private boolean mfaEnabled = false;
 
