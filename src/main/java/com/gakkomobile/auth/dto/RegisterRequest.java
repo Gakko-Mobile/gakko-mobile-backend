@@ -11,9 +11,11 @@ public record RegisterRequest(
         @Size(max = 100)
         String lastName,
 
+        @NotBlank
         @Pattern(regexp = "^s\\d{5}$", message = "Index must follow the pattern sXXXXX")
         String indexNumber,
 
+        @NotBlank
         @Pattern(regexp = "^\\d{11}$", message = "PESEL must contain exactly 11 digits")
         String pesel,
 
