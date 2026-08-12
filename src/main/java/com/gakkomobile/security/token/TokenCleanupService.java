@@ -14,7 +14,7 @@ public class TokenCleanupService {
         this.blacklistedTokenRepository = blacklistedTokenRepository;
     }
 
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(cron = "${application.security.jwt.cleanup.cron}")
     @Transactional
     public void cleanUpExpiredTokens() {
         System.out.println("Running token cleanup job...");
