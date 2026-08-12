@@ -1,5 +1,6 @@
 package com.gakkomobile.security.token;
 
+import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -14,6 +15,7 @@ public class TokenCleanupService {
     }
 
     @Scheduled(fixedRate = 3600000)
+    @Transactional
     public void cleanUpExpiredTokens() {
         System.out.println("Running token cleanup job...");
         blacklistedTokenRepository.deleteByExpiresAtBefore(new Date());
