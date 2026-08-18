@@ -16,14 +16,17 @@ import com.gakkomobile.user.User;
 import com.gakkomobile.user.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Service
+@Slf4j
 public class AuthService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
@@ -45,34 +48,39 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (this.repository.existsByEmail(request.email())) {
+        String email = request.email();
+        String indexNumber = request.indexNumber();
+        String pesel = request.pesel();
+
+        if (this.repository.existsByEmail(email)) {
             throw new UserAlreadyExistsException(
-                    String.format("User with email %s already exists.", request.email())
+                    String.format("User with email %s already exists.", email)
             );
         }
-        if (request.indexNumber() != null && !request.indexNumber().isBlank()) {
-            if (repository.existsByIndexNumber(request.indexNumber())) {
+        if (!Objects.isNull(indexNumber) && !indexNumber.isBlank()) {
+            if (repository.existsByIndexNumber(indexNumber)) {
                 throw new UserAlreadyExistsException(
-                        String.format("A user with index %s already exists.", request.indexNumber())
+                        String.format("A user with index %s already exists.", indexNumber)
                 );
             }
         }
-        if (request.pesel() != null && !request.pesel().isBlank()) {
-            if (repository.existsByPesel(request.pesel())) {
+        if (!Objects.isNull(pesel) && !pesel.isBlank()) {
+            if (repository.existsByPesel(pesel)) {
                 throw new UserAlreadyExistsException(
-                        String.format("A user with PESEL %s already exists.", request.pesel())
+                        String.format("A user with PESEL %s already exists.", pesel)
                 );
             }
         }
+
+        String passwordHash = passwordEncoder.encode(request.password());
 
         User user = new User();
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
-        user.setEmail(request.email());
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
-
-        user.setIndexNumber(request.indexNumber());
-        user.setPesel(request.pesel());
+        user.setEmail(email);
+        user.setPasswordHash(passwordHash);
+        user.setIndexNumber(indexNumber);
+        user.setPesel(pesel);
 
         user.setRole(Role.STUDENT);
 
@@ -92,7 +100,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
         User user = repository.findByEmail(request.email())
-                .orElseThrow();
+                .orElseThrow(UserNotFoundException::new);
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -105,7 +113,7 @@ public class AuthService {
                     new BlacklistedToken(oldRefreshToken, oldTokenExpiration)
             );
         } catch (JwtException e) {
-            // safe ignore
+            log.info(e.getMessage());
         }
 
         user.setRefreshToken(refreshToken);
@@ -117,24 +125,25 @@ public class AuthService {
 
     @Transactional
     public AuthResponse refreshToken(RefreshTokenRequest request) {
-        String refreshToken = request.refreshToken();
+        String refreshTokenFromRequest = request.refreshToken();
 
-        if (blacklistedTokenRepository.existsById(refreshToken)) {
+        if (blacklistedTokenRepository.existsById(refreshTokenFromRequest)) {
             throw new InvalidRefreshTokenException(ExceptionErrorConstants.REVOKED_REFRESH_TOKEN);
         }
 
-        String userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail != null) {
+        String userEmail = jwtService.extractUsername(refreshTokenFromRequest);
+        if (!Objects.isNull(userEmail)) {
             User user = repository.findByEmail(userEmail)
                     .orElseThrow(UserNotFoundException::new);
 
-            if (!user.getRefreshToken().equals(refreshToken)) {
+            String actualRefreshToken = user.getRefreshToken();
+            if (!actualRefreshToken.equals(refreshTokenFromRequest)) {
                 throw new InvalidRefreshTokenException(ExceptionErrorConstants.INVALID_REFRESH_TOKEN);
             }
 
-            if (jwtService.isTokenValid(refreshToken, user)) {
+            if (jwtService.isTokenValid(refreshTokenFromRequest, user)) {
                 String accessToken = jwtService.generateAccessToken(user);
-                return new AuthResponse(accessToken, refreshToken);
+                return new AuthResponse(accessToken, refreshTokenFromRequest);
             }
         }
         throw new InvalidRefreshTokenException(ExceptionErrorConstants.INVALID_REFRESH_TOKEN);
@@ -142,7 +151,7 @@ public class AuthService {
 
     @Transactional
     public boolean logout(String authHeader, String refreshToken) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
             return false;
         }
 
@@ -152,14 +161,14 @@ public class AuthService {
             Date accessExpiresAt = jwtService.extractExpiration(accessToken);
             blacklistedTokenRepository.save(new BlacklistedToken(accessToken, accessExpiresAt));
         } catch (JwtException e) {
-            // If the token is already expired or malformed, we can safely ignore it.
+            log.info(e.getMessage());
         }
 
         try {
             Date refreshExpiresAt = jwtService.extractExpiration(refreshToken);
             blacklistedTokenRepository.save(new BlacklistedToken(refreshToken, refreshExpiresAt));
         } catch (JwtException e) {
-            // Same ignore here.
+            log.info(e.getMessage());
         }
 
         return true;

@@ -1,5 +1,6 @@
 package com.gakkomobile.security.config;
 
+import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,9 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        ExceptionErrorConstants.USER_NOT_FOUND
+                ));
     }
 
     @Bean
