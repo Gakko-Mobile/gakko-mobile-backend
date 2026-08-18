@@ -46,19 +46,21 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (this.repository.existsByEmail(request.email())) {
-            throw new UserAlreadyExistsException("User with email " + request.email() + " already exists");
+            throw new UserAlreadyExistsException(
+                    String.format("User with email %s already exists.", request.email())
+            );
         }
         if (request.indexNumber() != null && !request.indexNumber().isBlank()) {
             if (repository.existsByIndexNumber(request.indexNumber())) {
                 throw new UserAlreadyExistsException(
-                        "A user with index " + request.indexNumber() + " already exists."
+                        String.format("A user with index %s already exists.", request.indexNumber())
                 );
             }
         }
         if (request.pesel() != null && !request.pesel().isBlank()) {
             if (repository.existsByPesel(request.pesel())) {
                 throw new UserAlreadyExistsException(
-                        "A user with PESEL " + request.pesel() + " already exists."
+                        String.format("A user with PESEL %s already exists.", request.pesel())
                 );
             }
         }
