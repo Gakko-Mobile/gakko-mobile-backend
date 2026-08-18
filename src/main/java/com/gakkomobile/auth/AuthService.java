@@ -1,0 +1,176 @@
+package com.gakkomobile.auth;
+
+import com.gakkomobile.auth.dto.AuthResponse;
+import com.gakkomobile.auth.dto.LoginRequest;
+import com.gakkomobile.auth.dto.RefreshTokenRequest;
+import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.exception.ExceptionErrorConstants;
+import com.gakkomobile.exception.InvalidRefreshTokenException;
+import com.gakkomobile.exception.UserAlreadyExistsException;
+import com.gakkomobile.exception.UserNotFoundException;
+import com.gakkomobile.security.jwt.JwtService;
+import com.gakkomobile.security.token.BlacklistedToken;
+import com.gakkomobile.security.token.BlacklistedTokenRepository;
+import com.gakkomobile.user.Role;
+import com.gakkomobile.user.User;
+import com.gakkomobile.user.UserRepository;
+import io.jsonwebtoken.JwtException;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.Objects;
+
+@Service
+@Slf4j
+public class AuthService {
+    private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
+
+    public AuthService(UserRepository repository,
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService,
+                       AuthenticationManager authenticationManager,
+                       BlacklistedTokenRepository blacklistedTokenRepository) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+        this.blacklistedTokenRepository = blacklistedTokenRepository;
+    }
+
+    @Transactional
+    public AuthResponse register(RegisterRequest request) {
+        String email = request.email();
+        String indexNumber = request.indexNumber();
+        String pesel = request.pesel();
+
+        if (this.repository.existsByEmail(email)) {
+            throw new UserAlreadyExistsException(
+                    String.format("User with email %s already exists.", email)
+            );
+        }
+        if (!Objects.isNull(indexNumber) && !indexNumber.isBlank()) {
+            if (repository.existsByIndexNumber(indexNumber)) {
+                throw new UserAlreadyExistsException(
+                        String.format("A user with index %s already exists.", indexNumber)
+                );
+            }
+        }
+        if (!Objects.isNull(pesel) && !pesel.isBlank()) {
+            if (repository.existsByPesel(pesel)) {
+                throw new UserAlreadyExistsException(
+                        String.format("A user with PESEL %s already exists.", pesel)
+                );
+            }
+        }
+
+        String passwordHash = passwordEncoder.encode(request.password());
+
+        User user = new User();
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setEmail(email);
+        user.setPasswordHash(passwordHash);
+        user.setIndexNumber(indexNumber);
+        user.setPesel(pesel);
+
+        user.setRole(Role.STUDENT);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        user.setRefreshToken(refreshToken);
+
+        repository.save(user);
+
+        return new AuthResponse(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public AuthResponse login(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+        );
+        User user = repository.findByEmail(request.email())
+                .orElseThrow(UserNotFoundException::new);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        try {
+            String oldRefreshToken = user.getRefreshToken();
+            Date oldTokenExpiration = jwtService.extractExpiration(oldRefreshToken);
+
+            blacklistedTokenRepository.save(
+                    new BlacklistedToken(oldRefreshToken, oldTokenExpiration)
+            );
+        } catch (JwtException e) {
+            log.info(e.getMessage());
+        }
+
+        user.setRefreshToken(refreshToken);
+
+        repository.save(user);
+
+        return new AuthResponse(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        String refreshTokenFromRequest = request.refreshToken();
+
+        if (blacklistedTokenRepository.existsById(refreshTokenFromRequest)) {
+            throw new InvalidRefreshTokenException(ExceptionErrorConstants.REVOKED_REFRESH_TOKEN);
+        }
+
+        String userEmail = jwtService.extractUsername(refreshTokenFromRequest);
+        if (!Objects.isNull(userEmail)) {
+            User user = repository.findByEmail(userEmail)
+                    .orElseThrow(UserNotFoundException::new);
+
+            String actualRefreshToken = user.getRefreshToken();
+            if (!actualRefreshToken.equals(refreshTokenFromRequest)) {
+                throw new InvalidRefreshTokenException(ExceptionErrorConstants.INVALID_REFRESH_TOKEN);
+            }
+
+            if (jwtService.isTokenValid(refreshTokenFromRequest, user)) {
+                String accessToken = jwtService.generateAccessToken(user);
+                return new AuthResponse(accessToken, refreshTokenFromRequest);
+            }
+        }
+        throw new InvalidRefreshTokenException(ExceptionErrorConstants.INVALID_REFRESH_TOKEN);
+    }
+
+    @Transactional
+    public boolean logout(String authHeader, String refreshToken) {
+        if (Objects.isNull(authHeader) || !authHeader.startsWith("Bearer ")) {
+            return false;
+        }
+
+        String accessToken = authHeader.substring(7);
+
+        try {
+            Date accessExpiresAt = jwtService.extractExpiration(accessToken);
+            blacklistedTokenRepository.save(new BlacklistedToken(accessToken, accessExpiresAt));
+        } catch (JwtException e) {
+            log.info(e.getMessage());
+        }
+
+        try {
+            Date refreshExpiresAt = jwtService.extractExpiration(refreshToken);
+            blacklistedTokenRepository.save(new BlacklistedToken(refreshToken, refreshExpiresAt));
+        } catch (JwtException e) {
+            log.info(e.getMessage());
+        }
+
+        return true;
+    }
+}
