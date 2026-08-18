@@ -12,7 +12,10 @@ public record RegisterRequest(
         String lastName,
 
         @NotBlank
-        @Pattern(regexp = "^s\\d{5}$", message = "Index must follow the pattern sXXXXX")
+        @Pattern(
+                regexp = "^s\\d{3,}$",
+                message = "Index number must start with 's' followed by at least 3 digits"
+        )
         String indexNumber,
 
         @NotBlank
