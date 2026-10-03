@@ -1,0 +1,38 @@
+package com.gakkomobile.groupclass;
+
+import com.gakkomobile.groupclass.dto.GroupClassResponse;
+import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/group-classes")
+@RequiredArgsConstructor
+public class GroupClassController {
+    private final GroupClassService groupClassService;
+
+    @GetMapping("/day")
+    public ResponseEntity<List<GroupClassResponse>> getDailySchedule(
+            @RequestParam(name = "filter-option") ScheduleFilterOption filterOption,
+            @RequestParam(name = "user-email", required = false) String userEmail,
+            @RequestParam(name = "group-name", required = false) String groupName,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        List<GroupClassResponse> responseBody = groupClassService.getDailySchedule(
+                filterOption,
+                userEmail,
+                groupName,
+                date
+        );
+
+        return ResponseEntity.ok(responseBody);
+    }
+}
