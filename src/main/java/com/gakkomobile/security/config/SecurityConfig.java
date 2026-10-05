@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/v1/api/test-notifications", //FIXME: remove this after test
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/refresh"

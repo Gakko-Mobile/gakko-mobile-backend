@@ -3,6 +3,7 @@ package com.gakkomobile.user;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -22,7 +23,9 @@ import java.util.UUID;
 @Table(name = "users")
 @Getter
 @Setter
+@NoArgsConstructor
 public class User implements UserDetails {
+
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
@@ -74,7 +77,6 @@ public class User implements UserDetails {
         if (this.id == null) {
             this.id = UuidCreator.getTimeOrderedEpoch();
         }
-
         if (this.passwordChangedAt == null) {
             this.passwordChangedAt = OffsetDateTime.now();
         }
@@ -82,7 +84,7 @@ public class User implements UserDetails {
 
     @Override
     public @NullMarked Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
@@ -93,5 +95,25 @@ public class User implements UserDetails {
     @Override
     public @NullMarked String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
