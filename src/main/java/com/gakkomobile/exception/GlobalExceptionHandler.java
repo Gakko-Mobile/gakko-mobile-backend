@@ -1,18 +1,24 @@
 package com.gakkomobile.exception;
 
+import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
+import com.gakkomobile.user.exception.UserAlreadyExistsException;
+import com.gakkomobile.user.exception.UserNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -98,4 +104,82 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+//    @ExceptionHandler(BadFilterOptionException.class)
+//    public ResponseEntity<ErrorResponse> handleBadFilterOption(BadFilterOptionException ex) {
+//        ErrorResponse error = new ErrorResponse(
+//                HttpStatus.BAD_REQUEST.value(),
+//                ex.getMessage(),
+//                LocalDateTime.now(),
+//                null
+//        );
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+//    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+
+        String parameterName = ex.getName();
+        String rejectedValue = !Objects.isNull(ex.getValue()) ? ex.getValue().toString() : "null";
+
+        String errorMessage = String.format(
+                "Invalid value '%s' for parameter '%s'.",
+                rejectedValue,
+                parameterName
+        );
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                errorMessage,
+                LocalDateTime.now(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(BadSearchParamsException.class)
+    public ResponseEntity<ErrorResponse> handleBadSearchParams(BadSearchParamsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(AcademicGroupNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAcademicGroupNotFound(AcademicGroupNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ExceptionErrorConstants.ACADEMIC_GROUP_NOT_FOUND,
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getStatusCode().value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(ex.getStatusCode()).body(error);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getStatusCode().value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(ex.getStatusCode()).body(error);
+    }
 }

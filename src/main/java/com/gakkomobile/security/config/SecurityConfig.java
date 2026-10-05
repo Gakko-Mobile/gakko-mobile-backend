@@ -35,6 +35,8 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/refresh"
                         ).permitAll()
+                        .requestMatchers("/api/users/identifiers", "/api/group-classes/day")
+                        .hasAnyAuthority("STUDENT", "EMPLOYEE", "ADMIN", "LECTURER")
                         .requestMatchers("/error")
                         .permitAll()
                         .anyRequest()

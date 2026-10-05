@@ -6,13 +6,13 @@ import com.gakkomobile.auth.dto.RefreshTokenRequest;
 import com.gakkomobile.auth.dto.RegisterRequest;
 import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.exception.InvalidRefreshTokenException;
-import com.gakkomobile.exception.UserAlreadyExistsException;
-import com.gakkomobile.exception.UserNotFoundException;
+import com.gakkomobile.user.exception.UserAlreadyExistsException;
+import com.gakkomobile.user.exception.UserNotFoundException;
 import com.gakkomobile.security.jwt.JwtService;
 import com.gakkomobile.security.token.BlacklistedToken;
 import com.gakkomobile.security.token.BlacklistedTokenRepository;
-import com.gakkomobile.user.Role;
-import com.gakkomobile.user.User;
+import com.gakkomobile.user.entity.Role;
+import com.gakkomobile.user.entity.User;
 import com.gakkomobile.user.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
@@ -112,7 +112,7 @@ public class AuthService {
             blacklistedTokenRepository.save(
                     new BlacklistedToken(oldRefreshToken, oldTokenExpiration)
             );
-        } catch (JwtException e) {
+        } catch (JwtException | IllegalArgumentException e) {
             log.info(e.getMessage());
         }
 
