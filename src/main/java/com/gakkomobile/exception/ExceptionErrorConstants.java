@@ -6,4 +6,5 @@ public class ExceptionErrorConstants {
     public static String USER_NOT_FOUND = "User not found.";
     public static String INVALID_REFRESH_TOKEN = "Invalid refresh token.";
     public static String REVOKED_REFRESH_TOKEN = "Refresh token has been revoked.";
+    public static String SOMETHING_WENT_WRONG_WITH_AUTH = "Something went wrong with authorization/authentication.";
 }

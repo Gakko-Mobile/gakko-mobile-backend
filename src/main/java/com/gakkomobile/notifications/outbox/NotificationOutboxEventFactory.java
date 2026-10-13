@@ -1,5 +1,6 @@
 package com.gakkomobile.notifications.outbox;
 
+import com.gakkomobile.notifications.dto.NotificationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -8,11 +9,11 @@ import org.springframework.stereotype.Component;
 public class NotificationOutboxEventFactory {
 
     private final NotificationOutboxEventRepository outboxEventRepository;
-    private final NotificationMapper notificationMapper;
+    private final NotificationOutboxMapper notificationOutboxMapper;
 
     public void create(NotificationDTO notificationDTO) {
 
-        NotificationOutboxEventEntity entity = notificationMapper.dtoToEntity(notificationDTO);
+        NotificationOutboxEventEntity entity = notificationOutboxMapper.dtoToEntity(notificationDTO);
         outboxEventRepository.save(entity);
     }
 }

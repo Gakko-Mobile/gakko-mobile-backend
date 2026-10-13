@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,6 +36,7 @@ class JwtAuthenticationFilterTest {
     @Mock private HttpServletResponse response;
     @Mock private FilterChain filterChain;
     @Mock private UserDetails userDetails;
+    @Mock private HandlerExceptionResolver resolver;
 
     @InjectMocks
     private JwtAuthenticationFilter jwtAuthenticationFilter;

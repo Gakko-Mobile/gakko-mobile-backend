@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class NotificationOutboxEventProcessor {
 
     private final NotificationOutboxEventRepository outboxRepository;
     private final KafkaTemplate<String, NotificationEventAvro> kafkaTemplate;
-    private final NotificationMapper notificationMapper;
+    private final NotificationOutboxMapper notificationOutboxMapper;
 
     @Value("${kafka.topic.notifications}")
     private String notificationTopic;
@@ -31,19 +32,19 @@ public class NotificationOutboxEventProcessor {
 
         for (NotificationOutboxEventEntity event : unprocessedEvents) {
             try {
-                NotificationEventAvro notificationEvent = notificationMapper.entityToAvro(event);
+                NotificationEventAvro notificationEvent = notificationOutboxMapper.entityToAvro(event);
                 kafkaTemplate.send(notificationTopic, event.getAggregateId(), notificationEvent)
-                        .whenComplete((result, ex) -> {
-                            if (ex == null) {
+                        .whenComplete((_, ex) -> {
+                            if (Objects.isNull(ex)) {
                                 event.setProcessed(true);
                                 outboxRepository.save(event);
-                                log.debug("Wysłano zdarzenie Outbox do Kafki: {}", event.getId());
+                                log.debug("Send outbox event to Kafka: {}", event.getId());
                             } else {
-                                log.error("Błąd wysyłki zdarzenia do Kafki: {}", event.getId(), ex);
+                                log.error("Error while sending outbox event to Kafka: {}", event.getId(), ex);
                             }
                         });
             } catch (Exception e) {
-                log.error("Błąd przetwarzania zdarzenia Outbox: {}", event.getId(), e);
+                log.error("Error while sending outbox event to Kafka: {}", event.getId(), e);
             }
         }
     }

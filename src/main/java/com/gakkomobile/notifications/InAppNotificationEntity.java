@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-class UserNotificationEntity {
+class InAppNotificationEntity {
 
     @Id
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)

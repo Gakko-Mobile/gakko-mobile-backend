@@ -4,6 +4,7 @@ import com.gakkomobile.auth.dto.AuthResponse;
 import com.gakkomobile.auth.dto.LoginRequest;
 import com.gakkomobile.auth.dto.RefreshTokenRequest;
 import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.auth.dto.UserCreatedEvent;
 import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.exception.InvalidRefreshTokenException;
 import com.gakkomobile.exception.UserAlreadyExistsException;
@@ -16,7 +17,9 @@ import com.gakkomobile.user.User;
 import com.gakkomobile.user.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,27 +30,18 @@ import java.util.Objects;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AuthService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final BlacklistedTokenRepository blacklistedTokenRepository;
-
-    public AuthService(UserRepository repository,
-                       PasswordEncoder passwordEncoder,
-                       JwtService jwtService,
-                       AuthenticationManager authenticationManager,
-                       BlacklistedTokenRepository blacklistedTokenRepository) {
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
-        this.blacklistedTokenRepository = blacklistedTokenRepository;
-    }
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+
         String email = request.email();
         String indexNumber = request.indexNumber();
         String pesel = request.pesel();
@@ -89,13 +83,15 @@ public class AuthService {
 
         user.setRefreshToken(refreshToken);
 
-        repository.save(user);
+        user = repository.save(user);
+        eventPublisher.publishEvent(new UserCreatedEvent(user.getId()));
 
         return new AuthResponse(accessToken, refreshToken);
     }
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
@@ -125,6 +121,7 @@ public class AuthService {
 
     @Transactional
     public AuthResponse refreshToken(RefreshTokenRequest request) {
+
         String refreshTokenFromRequest = request.refreshToken();
 
         if (blacklistedTokenRepository.existsById(refreshTokenFromRequest)) {

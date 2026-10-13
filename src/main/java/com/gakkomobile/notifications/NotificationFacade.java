@@ -1,6 +1,6 @@
 package com.gakkomobile.notifications;
 
-import com.gakkomobile.notifications.outbox.NotificationDTO;
+import com.gakkomobile.notifications.dto.NotificationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +12,6 @@ public class NotificationFacade {
 
     public void sendNotification(NotificationDTO notificationDTO) {
 
-        notificationService.createOutboxNotification(notificationDTO);
+        notificationService.putNotificationToOutbox(notificationDTO);
     }
 }

@@ -31,10 +31,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v1/api/test-notifications", //FIXME: remove this after test
-                                "/api/auth/register",
-                                "/api/auth/login",
-                                "/api/auth/refresh"
+                                "/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/api/v1/test-notifications", //FIXME: remove this after test
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/refresh"
                         ).permitAll()
                         .requestMatchers("/error")
                         .permitAll()

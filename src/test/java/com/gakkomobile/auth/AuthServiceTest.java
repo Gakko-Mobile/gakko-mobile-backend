@@ -4,6 +4,7 @@ import com.gakkomobile.auth.dto.AuthResponse;
 import com.gakkomobile.auth.dto.LoginRequest;
 import com.gakkomobile.auth.dto.RefreshTokenRequest;
 import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.auth.dto.UserCreatedEvent;
 import com.gakkomobile.exception.InvalidRefreshTokenException;
 import com.gakkomobile.exception.UserAlreadyExistsException;
 import com.gakkomobile.security.jwt.JwtService;
@@ -20,12 +21,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +42,7 @@ class AuthServiceTest {
     @Mock private JwtService jwtService;
     @Mock private AuthenticationManager authenticationManager;
     @Mock private BlacklistedTokenRepository blacklistedTokenRepository;
+    @Mock private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private AuthService authService;
@@ -69,6 +73,8 @@ class AuthServiceTest {
         when(passwordEncoder.encode(request.password())).thenReturn("hashed_password");
         when(jwtService.generateAccessToken(any(User.class))).thenReturn(accessToken);
         when(jwtService.generateRefreshToken(any(User.class))).thenReturn(refreshToken);
+        when(repository.save(any(User.class))).thenReturn(testUser);
+        testUser.setId(UUID.randomUUID());
 
         AuthResponse response = authService.register(request);
 
@@ -78,6 +84,7 @@ class AuthServiceTest {
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(repository).save(userCaptor.capture());
+        verify(eventPublisher).publishEvent(new UserCreatedEvent(testUser.getId()));
         assertEquals(refreshToken, userCaptor.getValue().getRefreshToken());
     }
 

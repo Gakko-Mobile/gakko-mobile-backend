@@ -1,7 +1,11 @@
-package com.gakkomobile.notifications;
+package com.gakkomobile.notifications.firebase;
 
+import com.gakkomobile.notifications.DevicePlatform;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.UuidGenerator;
@@ -14,6 +18,9 @@ import java.util.UUID;
 @Table(name = "user_device_tokens")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 class UserDeviceTokenEntity {
 
     @Id

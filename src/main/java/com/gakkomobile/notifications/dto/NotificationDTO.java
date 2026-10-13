@@ -1,6 +1,7 @@
 
-package com.gakkomobile.notifications.outbox;
+package com.gakkomobile.notifications.dto;
 
+import com.gakkomobile.notifications.outbox.NotificationTargetType;
 import lombok.Builder;
 
 /**
@@ -18,10 +19,6 @@ import lombok.Builder;
  *                      the notification.
  *                      Example: {@code "GRADE"}, {@code "SCHEDULE"},
  *                      {@code "PAYMENT"}, {@code "APPLICATION"}.
- * @param aggregateId the unique identifier (UUID, database ID) of the
- *                    specific aggregate instance.
- *                    Example: {@code "a3e9d8f1-1234-5678-90ab-cdef12345678"}
- *                    or {@code "10243"}.
  * @param eventType the specific business action or state transition
  *                  that occurred.
  *                  Example: {@code "GRADE_CREATED"}, {@code "ROOM_CHANGED"},
