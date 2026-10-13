@@ -1,6 +1,8 @@
 
 package com.gakkomobile.notifications.dto;
 
+import com.gakkomobile.common.event.EventActionType;
+import com.gakkomobile.common.event.EventAggregationType;
 import com.gakkomobile.notifications.outbox.NotificationTargetType;
 import lombok.Builder;
 
@@ -52,9 +54,9 @@ import lombok.Builder;
  */
 @Builder
 public record NotificationDTO(
-        String aggregateType,
+        EventAggregationType aggregateType,
         String aggregateId,
-        String eventType,
+        EventActionType eventType,
         NotificationTargetType targetType,
         String targetId,
         String title,
