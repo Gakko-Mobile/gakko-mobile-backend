@@ -150,3 +150,32 @@ VALUES
 
 UPDATE users SET password_hash = '$2a$10$SHOpK0jnkFcimNVcZyC3OeQcihnW6DWAnmQUjAyqIvYnUN/j5Wc7e';
 UPDATE users SET index_number = null where role != 'STUDENT';
+
+-- 10. EVENTS (10 records scheduled across various dates, including test dates)
+INSERT INTO events (id, organizator, description, building_id, start_timestamp, end_timestamp, created_at)
+VALUES
+    -- Events on October 3, 2026 (Test Date)
+    ('019ff6f0-0000-7000-8000-000000000081', 'Career Services', 'Tech Industry Resume Workshop',
+     '019ff6f0-0000-7000-8000-000000000021', '2026-10-03 16:00:00+02', '2026-10-03 18:00:00+02', '2026-09-15 10:00:00+02'),
+    ('019ff6f0-0000-7000-8000-000000000082', 'Student Board', 'Welcome Semester Integration Party',
+     '019ff6f0-0000-7000-8000-000000000022', '2026-10-03 19:00:00+02', '2026-10-03 23:00:00+02', '2026-09-15 10:00:00+02'),
+
+    -- Events on October 4, 2026 (Test Date)
+    ('019ff6f0-0000-7000-8000-000000000083', 'IT Faculty', 'Guest Lecture: Future of AI in Web Development',
+     '019ff6f0-0000-7000-8000-000000000021', '2026-10-04 12:00:00+02', '2026-10-04 14:00:00+02', '2026-09-15 10:00:00+02'),
+    ('019ff6f0-0000-7000-8000-000000000084', 'Game Dev Club', 'Hackathon 2026 Kickoff and Team Building',
+     '019ff6f0-0000-7000-8000-000000000022', '2026-10-04 17:00:00+02', '2026-10-04 20:00:00+02', '2026-09-15 10:00:00+02'),
+
+    -- Upcoming Events
+    ('019ff6f0-0000-7000-8000-000000000085', 'Academic Council', 'Open Q&A Session with the Dean',
+     '019ff6f0-0000-7000-8000-000000000021', '2026-10-10 10:00:00+02', '2026-10-10 11:30:00+02', '2026-09-15 10:00:00+02'),
+    ('019ff6f0-0000-7000-8000-000000000086', 'Erasmus Office', 'Study Abroad 2027 Information Session',
+     '019ff6f0-0000-7000-8000-000000000022', '2026-10-12 13:00:00+02', '2026-10-12 15:00:00+02', '2026-09-15 10:00:00+02'),
+    ('019ff6f0-0000-7000-8000-000000000087', 'Cybersecurity Club', 'Capture The Flag (CTF) Training #1',
+     '019ff6f0-0000-7000-8000-000000000021', '2026-10-15 18:00:00+02', '2026-10-15 21:00:00+02', '2026-09-15 10:00:00+02'),
+    ('019ff6f0-0000-7000-8000-000000000088', 'Alumni Association', 'Tech Networking Evening',
+     '019ff6f0-0000-7000-8000-000000000022', '2026-10-20 18:30:00+02', '2026-10-20 21:30:00+02', '2026-09-15 10:00:00+02'),
+    ('019ff6f0-0000-7000-8000-000000000089', 'Library Services', 'How to Write Your Thesis using LaTeX',
+     '019ff6f0-0000-7000-8000-000000000022', '2026-10-22 14:00:00+02', '2026-10-22 16:00:00+02', '2026-09-15 10:00:00+02'),
+    ('019ff6f0-0000-7000-8000-00000000008a', 'E-Sports Team', 'PJATK League of Legends Finals Watch Party',
+     '019ff6f0-0000-7000-8000-000000000021', '2026-10-25 17:00:00+02', '2026-10-25 22:00:00+02', '2026-09-15 10:00:00+02');
