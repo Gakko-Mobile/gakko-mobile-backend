@@ -1,7 +1,7 @@
 package com.gakkomobile.groupmembership;
 
-import com.gakkomobile.academicgroup.entity.AcademicGroup;
-import com.gakkomobile.user.entity.User;
+import com.gakkomobile.academicgroup.AcademicGroup;
+import com.gakkomobile.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

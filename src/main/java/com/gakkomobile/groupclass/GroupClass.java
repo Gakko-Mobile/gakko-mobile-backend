@@ -1,8 +1,8 @@
-package com.gakkomobile.groupclass.entity;
+package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.entity.AcademicGroup;
-import com.gakkomobile.room.entity.Room;
-import com.gakkomobile.subject.entity.Subject;
+import com.gakkomobile.academicgroup.AcademicGroup;
+import com.gakkomobile.room.Room;
+import com.gakkomobile.subject.Subject;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;

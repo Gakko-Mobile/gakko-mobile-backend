@@ -1,8 +1,6 @@
 package com.gakkomobile.user;
 
 import com.gakkomobile.user.dto.UserIdentifiersResponse;
-import com.gakkomobile.user.entity.Role;
-import com.gakkomobile.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

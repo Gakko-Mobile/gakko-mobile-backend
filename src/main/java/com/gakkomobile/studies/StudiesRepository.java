@@ -1,0 +1,10 @@
+package com.gakkomobile.studies;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface StudiesRepository extends JpaRepository<Studies, UUID> {
+}

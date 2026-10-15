@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/group-classes")
@@ -23,13 +24,13 @@ public class GroupClassController {
     public ResponseEntity<List<GroupClassResponse>> getDailySchedule(
             @RequestParam(name = "filter-option") ScheduleFilterOption filterOption,
             @RequestParam(name = "user-email", required = false) String userEmail,
-            @RequestParam(name = "group-name", required = false) String groupName,
+            @RequestParam(name = "group-id", required = false) UUID groupId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         List<GroupClassResponse> responseBody = groupClassService.getDailySchedule(
                 filterOption,
                 userEmail,
-                groupName,
+                groupId,
                 date
         );
 

@@ -1,4 +1,4 @@
-package com.gakkomobile.user.entity;
+package com.gakkomobile.user;
 
 import com.gakkomobile.groupmembership.GroupMembership;
 import com.github.f4b6a3.uuid.UuidCreator;

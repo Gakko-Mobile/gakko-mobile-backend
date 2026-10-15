@@ -1,4 +1,4 @@
-package com.gakkomobile.subject.entity;
+package com.gakkomobile.subject;
 
 public enum SubjectType {
     LECTURE,

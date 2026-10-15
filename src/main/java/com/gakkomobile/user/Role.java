@@ -1,4 +1,4 @@
-package com.gakkomobile.user.entity;
+package com.gakkomobile.user;
 
 public enum Role {
     STUDENT,

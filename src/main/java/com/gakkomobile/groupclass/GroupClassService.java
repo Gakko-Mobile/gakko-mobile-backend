@@ -1,6 +1,6 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.entity.AcademicGroup;
+import com.gakkomobile.academicgroup.AcademicGroup;
 import com.gakkomobile.academicgroup.AcademicGroupRepository;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
 import com.gakkomobile.exception.BadSearchParamsException;
@@ -9,11 +9,10 @@ import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
 import com.gakkomobile.user.exception.UserNotFoundException;
 import com.gakkomobile.groupmembership.GroupMembership;
 import com.gakkomobile.groupclass.dto.GroupClassResponse;
-import com.gakkomobile.groupclass.entity.GroupClass;
-import com.gakkomobile.room.entity.Room;
-import com.gakkomobile.subject.entity.Subject;
-import com.gakkomobile.user.entity.Role;
-import com.gakkomobile.user.entity.User;
+import com.gakkomobile.room.Room;
+import com.gakkomobile.subject.Subject;
+import com.gakkomobile.user.Role;
+import com.gakkomobile.user.User;
 import com.gakkomobile.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,7 +35,7 @@ public class GroupClassService {
     public List<GroupClassResponse> getDailySchedule(
             ScheduleFilterOption filterOption,
             String userEmail,
-            String groupName,
+            UUID groupId,
             LocalDate date
     ) {
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
@@ -58,17 +57,17 @@ public class GroupClassService {
                         .findClassesByUserEmailAndDate(userEmail, startOfDay, endOfDay);
             }
             case GROUP -> {
-                if (Objects.isNull(groupName)) {
+                if (Objects.isNull(groupId)) {
                     throw new BadSearchParamsException(
                             ExceptionErrorConstants.ACADEMIC_GROUP_NAME_NOT_PROVIDED
                     );
                 }
 
-                if (!academicGroupRepository.existsByName(groupName)) {
+                if (!academicGroupRepository.existsById(groupId)) {
                     throw new AcademicGroupNotFoundException();
                 }
                 yield groupClassRepository
-                        .findClassesByGroupNameAndDate(groupName, startOfDay, endOfDay);
+                        .findClassesByGroupIdAndDate(groupId, startOfDay, endOfDay);
             }
 
             default -> throw new RuntimeException("Not served ScheduleFilterOption value");

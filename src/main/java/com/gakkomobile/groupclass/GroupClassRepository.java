@@ -1,6 +1,5 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.groupclass.entity.GroupClass;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,13 +30,13 @@ public interface GroupClassRepository extends JpaRepository<GroupClass, UUID> {
     @Query("""
                 SELECT gc FROM GroupClass gc
                 JOIN gc.groups g
-                WHERE g.name = :groupName
+                WHERE g.id = :groupId
                 AND gc.startTimestamp >= :startOfDay
                 AND gc.startTimestamp < :endOfDay
                 ORDER BY gc.startTimestamp ASC
             """)
-    List<GroupClass> findClassesByGroupNameAndDate(
-            @Param("groupName") String groupName,
+    List<GroupClass> findClassesByGroupIdAndDate(
+            @Param("groupId") UUID groupId,
             @Param("startOfDay") OffsetDateTime startOfDay,
             @Param("endOfDay") OffsetDateTime endOfDay
     );

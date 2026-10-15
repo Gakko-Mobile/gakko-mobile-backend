@@ -2,8 +2,6 @@ package com.gakkomobile.user;
 
 import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.user.dto.UserIdentifiersResponse;
-import com.gakkomobile.user.entity.Role;
-import com.gakkomobile.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

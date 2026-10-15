@@ -1,7 +1,7 @@
-package com.gakkomobile.academicgroup.entity;
+package com.gakkomobile.academicgroup;
 
 import com.gakkomobile.groupmembership.GroupMembership;
-import com.gakkomobile.studies.entity.Studies;
+import com.gakkomobile.studies.Studies;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,32 +22,15 @@ public class AcademicGroup {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "name", length = 50, unique = true, nullable = false)
+//    @Column(name = "name", length = 50, unique = true, nullable = false)
+    @Column(name = "name", length = 50, nullable = false)
     private String name;
 
     @Column(name = "academic_year", length = 10, nullable = false)
     private String academicYear;
 
-    @Column(name = "semester", nullable = false)
-    private int semester;
-
-//    @ManyToMany
-//    @JoinTable(
-//            name = "user_groups",
-//            joinColumns = @JoinColumn(name = "group_id"),
-//            inverseJoinColumns = @JoinColumn(name = "user_id")
-//    )
-//    @SQLRestriction("role = 'STUDENT'")
-//    private Set<User> students = new HashSet<>();
-//
-//    @ManyToMany
-//    @JoinTable(
-//            name = "user_groups",
-//            joinColumns = @JoinColumn(name = "group_id"),
-//            inverseJoinColumns = @JoinColumn(name = "user_id")
-//    )
-//    @SQLRestriction("role = 'LECTURER'")
-//    private Set<User> lecturers = new HashSet<>();
+//    @Column(name = "semester", nullable = false)
+//    private int semester;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GroupMembership> memberships = new HashSet<>();
