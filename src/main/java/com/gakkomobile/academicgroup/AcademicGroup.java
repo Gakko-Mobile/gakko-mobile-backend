@@ -22,15 +22,11 @@ public class AcademicGroup {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-//    @Column(name = "name", length = 50, unique = true, nullable = false)
     @Column(name = "name", length = 50, nullable = false)
     private String name;
 
     @Column(name = "academic_year", length = 10, nullable = false)
     private String academicYear;
-
-//    @Column(name = "semester", nullable = false)
-//    private int semester;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GroupMembership> memberships = new HashSet<>();
