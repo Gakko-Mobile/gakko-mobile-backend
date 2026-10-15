@@ -41,7 +41,10 @@ public class SecurityConfig {
                                 "/api/academic-groups/indetifiers",
                                 "/api/studies"
                         ).hasAnyAuthority("STUDENT", "EMPLOYEE", "ADMIN", "LECTURER")
-                        .requestMatchers("/error")
+                        .requestMatchers(
+                                "/error",
+                                "/api/events/day"
+                        )
                         .permitAll()
                         .anyRequest()
                         .authenticated()
