@@ -15,7 +15,7 @@ public interface GroupClassRepository extends JpaRepository<GroupClassEntity, UU
         SELECT DISTINCT gc FROM GroupClassEntity gc
         JOIN gc.groups ag
         WHERE ag IN (
-            SELECT gm.group FROM GroupMembership gm WHERE gm.user.email = :email
+            SELECT gm.group FROM GroupMembershipEntity gm WHERE gm.user.email = :email
         )
         AND gc.startTimestamp >= :startOfDay
         AND gc.startTimestamp < :endOfDay
