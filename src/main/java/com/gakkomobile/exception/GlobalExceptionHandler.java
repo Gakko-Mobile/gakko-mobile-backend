@@ -104,17 +104,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-//    @ExceptionHandler(BadFilterOptionException.class)
-//    public ResponseEntity<ErrorResponse> handleBadFilterOption(BadFilterOptionException ex) {
-//        ErrorResponse error = new ErrorResponse(
-//                HttpStatus.BAD_REQUEST.value(),
-//                ex.getMessage(),
-//                LocalDateTime.now(),
-//                null
-//        );
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-//    }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
 
