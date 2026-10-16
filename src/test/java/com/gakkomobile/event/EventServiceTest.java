@@ -1,6 +1,6 @@
 package com.gakkomobile.event;
 
-import com.gakkomobile.building.Building;
+import com.gakkomobile.building.BuildingEntity;
 import com.gakkomobile.event.dto.EventResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,11 +35,11 @@ class EventServiceTest {
         OffsetDateTime startOfDay = targetDate.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
-        Building building = new Building();
+        BuildingEntity building = new BuildingEntity();
         building.setId(UUID.randomUUID());
         building.setName("Main Campus Building");
 
-        Event event1 = new Event();
+        EventEntity event1 = new EventEntity();
         event1.setId(UUID.randomUUID());
         event1.setOrganizator("Career Services");
         event1.setDescription("Tech Industry Resume Workshop");
@@ -47,7 +47,7 @@ class EventServiceTest {
         event1.setStartTimestamp(OffsetDateTime.of(2026, 10, 3, 16, 0, 0, 0, ZoneOffset.UTC));
         event1.setEndTimestamp(OffsetDateTime.of(2026, 10, 3, 18, 0, 0, 0, ZoneOffset.UTC));
 
-        Event event2 = new Event();
+        EventEntity event2 = new EventEntity();
         event2.setId(UUID.randomUUID());
         event2.setOrganizator("Student Board");
         event2.setDescription("Welcome Semester Integration Party");

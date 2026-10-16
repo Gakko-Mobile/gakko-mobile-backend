@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface GroupClassRepository extends JpaRepository<GroupClass, UUID> {
+public interface GroupClassRepository extends JpaRepository<GroupClassEntity, UUID> {
     @Query("""
-        SELECT DISTINCT gc FROM GroupClass gc
+        SELECT DISTINCT gc FROM GroupClassEntity gc
         JOIN gc.groups ag
         WHERE ag IN (
             SELECT gm.group FROM GroupMembership gm WHERE gm.user.email = :email
@@ -21,21 +21,21 @@ public interface GroupClassRepository extends JpaRepository<GroupClass, UUID> {
         AND gc.startTimestamp < :endOfDay
         ORDER BY gc.startTimestamp ASC
     """)
-    List<GroupClass> findClassesByUserEmailAndDate(
+    List<GroupClassEntity> findClassesByUserEmailAndDate(
             @Param("email") String email,
             @Param("startOfDay") OffsetDateTime startOfDay,
             @Param("endOfDay") OffsetDateTime endOfDay
     );
 
     @Query("""
-                SELECT gc FROM GroupClass gc
+                SELECT gc FROM GroupClassEntity gc
                 JOIN gc.groups g
                 WHERE g.id = :groupId
                 AND gc.startTimestamp >= :startOfDay
                 AND gc.startTimestamp < :endOfDay
                 ORDER BY gc.startTimestamp ASC
             """)
-    List<GroupClass> findClassesByGroupIdAndDate(
+    List<GroupClassEntity> findClassesByGroupIdAndDate(
             @Param("groupId") UUID groupId,
             @Param("startOfDay") OffsetDateTime startOfDay,
             @Param("endOfDay") OffsetDateTime endOfDay

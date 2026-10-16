@@ -25,7 +25,7 @@ public class UserService {
     ) {
         Pageable pageable = PageRequest.of(pageNum, limit);
 
-        List<User> users = switch (selectedRole) {
+        List<UserEntity> users = switch (selectedRole) {
             case STUDENT -> userRepository.searchByFullNameOrIndex(nameIndexSearch, pageable);
             case LECTURER -> userRepository.searchByFullName(nameIndexSearch, pageable);
             default -> {

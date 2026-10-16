@@ -11,8 +11,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findByEmail(String email);
+public interface UserRepository extends JpaRepository<UserEntity, UUID> {
+    Optional<UserEntity> findByEmail(String email);
 
     boolean existsByIndexNumber(String index);
 
@@ -21,17 +21,17 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByPesel(String pesel);
 
     @Query("""
-        SELECT u FROM User u
+        SELECT u FROM UserEntity u
         WHERE (LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :name, '%'))
            OR LOWER(CONCAT(u.lastName, ' ', u.firstName)) LIKE LOWER(CONCAT('%', :name, '%')))
     """)
-    List<User> searchByFullName(@Param("name") String name, Pageable pageable);
+    List<UserEntity> searchByFullName(@Param("name") String name, Pageable pageable);
 
     @Query("""
-        SELECT u FROM User u
+        SELECT u FROM UserEntity u
         WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :nameOrIndex, '%'))
            OR LOWER(CONCAT(u.lastName, ' ', u.firstName)) LIKE LOWER(CONCAT('%', :nameOrIndex, '%'))
            OR LOWER(u.indexNumber) LIKE LOWER(CONCAT('%', :nameOrIndex, '%'))
     """)
-    List<User> searchByFullNameOrIndex(@Param("nameOrIndex") String nameOrIndex, Pageable pageable);
+    List<UserEntity> searchByFullNameOrIndex(@Param("nameOrIndex") String nameOrIndex, Pageable pageable);
 }

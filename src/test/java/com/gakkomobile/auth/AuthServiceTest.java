@@ -10,7 +10,7 @@ import com.gakkomobile.security.jwt.JwtService;
 import com.gakkomobile.security.token.BlacklistedToken;
 import com.gakkomobile.security.token.BlacklistedTokenRepository;
 import com.gakkomobile.user.Role;
-import com.gakkomobile.user.User;
+import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,14 +43,14 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    private User testUser;
+    private UserEntity testUser;
     private final String email = "test@example.com";
     private final String accessToken = "access.jwt.token";
     private final String refreshToken = "refresh.jwt.token";
 
     @BeforeEach
     void setUp() {
-        testUser = new User();
+        testUser = new UserEntity();
         testUser.setEmail(email);
         testUser.setRole(Role.STUDENT);
         testUser.setPasswordHash("hashed_password");
@@ -67,8 +67,8 @@ class AuthServiceTest {
         when(repository.existsByIndexNumber(request.indexNumber())).thenReturn(false);
         when(repository.existsByPesel(request.pesel())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("hashed_password");
-        when(jwtService.generateAccessToken(any(User.class))).thenReturn(accessToken);
-        when(jwtService.generateRefreshToken(any(User.class))).thenReturn(refreshToken);
+        when(jwtService.generateAccessToken(any(UserEntity.class))).thenReturn(accessToken);
+        when(jwtService.generateRefreshToken(any(UserEntity.class))).thenReturn(refreshToken);
 
         AuthResponse response = authService.register(request);
 
@@ -76,7 +76,7 @@ class AuthServiceTest {
         assertEquals(accessToken, response.accessToken());
         assertEquals(refreshToken, response.refreshToken());
 
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
         verify(repository).save(userCaptor.capture());
         assertEquals(refreshToken, userCaptor.getValue().getRefreshToken());
     }
@@ -90,7 +90,7 @@ class AuthServiceTest {
         when(repository.existsByEmail(request.email())).thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
-        verify(repository, never()).save(any(User.class));
+        verify(repository, never()).save(any(UserEntity.class));
     }
 
     @Test
@@ -103,7 +103,7 @@ class AuthServiceTest {
         when(repository.existsByIndexNumber(request.indexNumber())).thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
-        verify(repository, never()).save(any(User.class));
+        verify(repository, never()).save(any(UserEntity.class));
     }
 
     @Test
@@ -117,7 +117,7 @@ class AuthServiceTest {
         when(repository.existsByPesel(request.pesel())).thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
-        verify(repository, never()).save(any(User.class));
+        verify(repository, never()).save(any(UserEntity.class));
     }
 
     @Test
@@ -228,7 +228,7 @@ class AuthServiceTest {
 
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refreshToken(request));
 
-        verify(jwtService, never()).generateAccessToken(any(User.class));
+        verify(jwtService, never()).generateAccessToken(any(UserEntity.class));
     }
 
     @Test

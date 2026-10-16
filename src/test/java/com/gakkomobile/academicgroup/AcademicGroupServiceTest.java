@@ -1,7 +1,7 @@
 package com.gakkomobile.academicgroup;
 
 import com.gakkomobile.academicgroup.dto.AcademicGroupIdentifiersResponse;
-import com.gakkomobile.studies.Studies;
+import com.gakkomobile.studies.StudiesEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,17 +30,17 @@ class AcademicGroupServiceTest {
         String studiesName = "Computer Science - Web Development";
         String academicYear = "2026/2027";
 
-        Studies studies = new Studies();
+        StudiesEntity studies = new StudiesEntity();
         studies.setId(UUID.randomUUID());
         studies.setName(studiesName);
 
-        AcademicGroup group1 = new AcademicGroup();
+        AcademicGroupEntity group1 = new AcademicGroupEntity();
         group1.setId(UUID.randomUUID());
         group1.setName("WIs I.1");
         group1.setAcademicYear(academicYear);
         group1.setStudies(studies);
 
-        AcademicGroup group2 = new AcademicGroup();
+        AcademicGroupEntity group2 = new AcademicGroupEntity();
         group2.setId(UUID.randomUUID());
         group2.setName("WIs I.2");
         group2.setAcademicYear(academicYear);

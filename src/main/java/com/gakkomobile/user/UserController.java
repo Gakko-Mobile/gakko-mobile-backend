@@ -19,7 +19,7 @@ public class UserController {
 
     @GetMapping("/identifiers")
     public ResponseEntity<List<UserIdentifiersResponse>> searchUserIdentifiers(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserEntity user,
             @RequestParam(name = "name-or-index-search") String nameIndexSearch,
             @RequestParam(name = "role") Role selectedRole,
             @RequestParam(name = "page", defaultValue = "0") Integer pageNum,

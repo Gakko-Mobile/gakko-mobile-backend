@@ -1,6 +1,5 @@
-package com.gakkomobile.room;
+package com.gakkomobile.studies;
 
-import com.gakkomobile.building.Building;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,20 +11,16 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "rooms")
+@Table(name = "studies")
 @Getter
 @Setter
-public class Room {
+public class StudiesEntity {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "name", length = 50, nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "building_id", nullable = false)
-    private Building building;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -34,7 +29,7 @@ public class Room {
     @PrePersist
     protected void onCreate() {
         if (Objects.isNull(this.id)) {
-            this.id = UuidCreator.getTimeOrderedEpoch();
+            id = UuidCreator.getTimeOrderedEpoch();
         }
     }
 }

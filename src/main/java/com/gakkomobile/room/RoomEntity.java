@@ -1,39 +1,31 @@
-package com.gakkomobile.subject;
+package com.gakkomobile.room;
 
+import com.gakkomobile.building.BuildingEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "subjects")
+@Table(name = "rooms")
 @Getter
 @Setter
-public class Subject {
+public class RoomEntity {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "code", length = 20, unique = true, nullable = false)
-    private String code;
-
-    @Column(name = "name", length = 150, nullable = false)
+    @Column(name = "name", length = 50, nullable = false)
     private String name;
 
-    @Column(name = "type", nullable = false)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Enumerated(EnumType.STRING)
-    private SubjectType type;
-
-    @Column(name = "ects_points", nullable = false)
-    private int ectsPoints; // CHECK (ects_points >= 0),
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "building_id", nullable = false)
+    private BuildingEntity building;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

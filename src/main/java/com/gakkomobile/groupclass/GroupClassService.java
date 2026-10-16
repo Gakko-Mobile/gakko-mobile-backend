@@ -1,18 +1,18 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.AcademicGroup;
+import com.gakkomobile.academicgroup.AcademicGroupEntity;
 import com.gakkomobile.academicgroup.AcademicGroupRepository;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
 import com.gakkomobile.exception.BadSearchParamsException;
 import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
 import com.gakkomobile.user.exception.UserNotFoundException;
-import com.gakkomobile.groupmembership.GroupMembership;
+import com.gakkomobile.groupmembership.GroupMembershipEntity;
 import com.gakkomobile.groupclass.dto.GroupClassResponse;
-import com.gakkomobile.room.Room;
-import com.gakkomobile.subject.Subject;
+import com.gakkomobile.room.RoomEntity;
+import com.gakkomobile.subject.SubjectEntity;
 import com.gakkomobile.user.Role;
-import com.gakkomobile.user.User;
+import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class GroupClassService {
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
-        List<GroupClass> groupClasses = switch (filterOption) {
+        List<GroupClassEntity> groupClasses = switch (filterOption) {
             case INDIVIDUAL -> {
                 if (Objects.isNull(userEmail)) {
                     throw new BadSearchParamsException(
@@ -82,7 +82,7 @@ public class GroupClassService {
     }
 
     private GroupClassResponse convertGroupClassToResponse(
-            GroupClass groupClass,
+            GroupClassEntity groupClass,
             DateTimeFormatter timeFormatter
     ) {
         int regularStudentsNum = 0;
@@ -90,11 +90,11 @@ public class GroupClassService {
         Set<String> lecturerNames = new HashSet<>();
         Set<String> groupNames = new HashSet<>();
 
-        for (AcademicGroup group : groupClass.getGroups()) {
+        for (AcademicGroupEntity group : groupClass.getGroups()) {
             groupNames.add(group.getName());
 
-            for (GroupMembership membership : group.getMemberships()) {
-                User user = membership.getUser();
+            for (GroupMembershipEntity membership : group.getMemberships()) {
+                UserEntity user = membership.getUser();
 
                 if (user.getRole() == Role.STUDENT) {
                     if (membership.isItn()) {
@@ -108,7 +108,7 @@ public class GroupClassService {
             }
         }
 
-        Subject subject = groupClass.getSubject();
+        SubjectEntity subject = groupClass.getSubject();
 
         String subjectTypeStr = subject
                 .getType()
@@ -116,7 +116,7 @@ public class GroupClassService {
                 .toLowerCase()
                 .replace("_", " ");
 
-        Room room = groupClass.getRoom();
+        RoomEntity room = groupClass.getRoom();
 
         OffsetDateTime classStartTimestamp = groupClass.getStartTimestamp();
         OffsetDateTime classEndTimestamp = groupClass.getEndTimestamp();

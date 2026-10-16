@@ -1,8 +1,8 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.AcademicGroup;
-import com.gakkomobile.room.Room;
-import com.gakkomobile.subject.Subject;
+import com.gakkomobile.academicgroup.AcademicGroupEntity;
+import com.gakkomobile.room.RoomEntity;
+import com.gakkomobile.subject.SubjectEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,14 +18,14 @@ import java.util.UUID;
 @Table(name = "group_classes")
 @Getter
 @Setter
-public class GroupClass {
+public class GroupClassEntity {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
-    private Subject subject;
+    private SubjectEntity subject;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -33,11 +33,11 @@ public class GroupClass {
             joinColumns = @JoinColumn(name = "class_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    private Set<AcademicGroup> groups;
+    private Set<AcademicGroupEntity> groups;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
-    private Room room;
+    private RoomEntity room;
 
     @Column(name = "start_timestamp", nullable = false)
     private OffsetDateTime startTimestamp;

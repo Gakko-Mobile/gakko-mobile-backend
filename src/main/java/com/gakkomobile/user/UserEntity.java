@@ -1,6 +1,6 @@
 package com.gakkomobile.user;
 
-import com.gakkomobile.groupmembership.GroupMembership;
+import com.gakkomobile.groupmembership.GroupMembershipEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,7 +21,7 @@ import java.util.*;
 @Table(name = "users")
 @Getter
 @Setter
-public class User implements UserDetails {
+public class UserEntity implements UserDetails {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
@@ -65,7 +65,7 @@ public class User implements UserDetails {
     private OffsetDateTime passwordChangedAt;
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<GroupMembership> groupMemberships = new HashSet<>();
+    private Set<GroupMembershipEntity> groupMemberships = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

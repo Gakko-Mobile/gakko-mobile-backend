@@ -12,7 +12,7 @@ import com.gakkomobile.security.jwt.JwtService;
 import com.gakkomobile.security.token.BlacklistedToken;
 import com.gakkomobile.security.token.BlacklistedTokenRepository;
 import com.gakkomobile.user.Role;
-import com.gakkomobile.user.User;
+import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
@@ -74,7 +74,7 @@ public class AuthService {
 
         String passwordHash = passwordEncoder.encode(request.password());
 
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(email);
@@ -99,7 +99,7 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        User user = repository.findByEmail(request.email())
+        UserEntity user = repository.findByEmail(request.email())
                 .orElseThrow(UserNotFoundException::new);
 
         String accessToken = jwtService.generateAccessToken(user);
@@ -133,7 +133,7 @@ public class AuthService {
 
         String userEmail = jwtService.extractUsername(refreshTokenFromRequest);
         if (!Objects.isNull(userEmail)) {
-            User user = repository.findByEmail(userEmail)
+            UserEntity user = repository.findByEmail(userEmail)
                     .orElseThrow(UserNotFoundException::new);
 
             String actualRefreshToken = user.getRefreshToken();

@@ -35,7 +35,7 @@ class UserServiceTest {
         int limit = 10;
         Pageable pageable = PageRequest.of(pageNum, limit);
 
-        User student = new User();
+        UserEntity student = new UserEntity();
         student.setEmail("danisa@gmail.com");
         student.setFirstName("Danisa");
         student.setLastName("Novikova");
@@ -65,7 +65,7 @@ class UserServiceTest {
         int limit = 10;
         Pageable pageable = PageRequest.of(pageNum, limit);
 
-        User lecturer = new User();
+        UserEntity lecturer = new UserEntity();
         lecturer.setEmail("jan@pjatk.edu.pl");
         lecturer.setFirstName("Jan");
         lecturer.setLastName("Kowalski");
@@ -91,7 +91,7 @@ class UserServiceTest {
         int limit = 10;
         Pageable pageable = PageRequest.of(pageNum, limit);
 
-        User employee = new User();
+        UserEntity employee = new UserEntity();
         employee.setEmail("emp@pjatk.edu.pl");
         employee.setFirstName("Anna");
         employee.setLastName("Nowak");

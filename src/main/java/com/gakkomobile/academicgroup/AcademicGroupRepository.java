@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface AcademicGroupRepository extends JpaRepository<AcademicGroup, UUID> {
+public interface AcademicGroupRepository extends JpaRepository<AcademicGroupEntity, UUID> {
     boolean existsByName(String name);
 
-    List<AcademicGroup> findAllByStudies_NameAndAcademicYear(String studiesName, String academicYear);
+    List<AcademicGroupEntity> findAllByStudies_NameAndAcademicYear(String studiesName, String academicYear);
 
 //    @Query("""
 //                SELECT ag FROM AcademicGroup ag

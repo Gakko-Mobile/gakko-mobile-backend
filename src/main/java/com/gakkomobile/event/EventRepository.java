@@ -10,16 +10,16 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, UUID> {
+public interface EventRepository extends JpaRepository<EventEntity, UUID> {
 
     @Query("""
-        SELECT e FROM Event e
+        SELECT e FROM EventEntity e
         JOIN FETCH e.building b
         WHERE e.startTimestamp >= :startOfDay
           AND e.startTimestamp < :endOfDay
         ORDER BY e.startTimestamp ASC
     """)
-    List<Event> findEventsByDate(
+    List<EventEntity> findEventsByDate(
             @Param("startOfDay") OffsetDateTime startOfDay,
             @Param("endOfDay") OffsetDateTime endOfDay
     );

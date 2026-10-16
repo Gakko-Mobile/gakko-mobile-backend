@@ -26,11 +26,11 @@ class StudiesServiceTest {
 
     @Test
     void getAll_ShouldReturnMappedResponses_WhenStudiesExist() {
-        Studies study1 = new Studies();
+        StudiesEntity study1 = new StudiesEntity();
         study1.setId(UUID.randomUUID());
         study1.setName("Computer Science - Web Development");
 
-        Studies study2 = new Studies();
+        StudiesEntity study2 = new StudiesEntity();
         study2.setId(UUID.randomUUID());
         study2.setName("New Media Arts - Graphic Design");
 

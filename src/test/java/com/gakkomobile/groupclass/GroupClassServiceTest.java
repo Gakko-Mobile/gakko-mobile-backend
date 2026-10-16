@@ -1,18 +1,18 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.AcademicGroup;
+import com.gakkomobile.academicgroup.AcademicGroupEntity;
 import com.gakkomobile.academicgroup.AcademicGroupRepository;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
-import com.gakkomobile.building.Building;
+import com.gakkomobile.building.BuildingEntity;
 import com.gakkomobile.exception.BadSearchParamsException;
 import com.gakkomobile.groupclass.dto.GroupClassResponse;
 import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
-import com.gakkomobile.groupmembership.GroupMembership;
-import com.gakkomobile.room.Room;
-import com.gakkomobile.subject.Subject;
+import com.gakkomobile.groupmembership.GroupMembershipEntity;
+import com.gakkomobile.room.RoomEntity;
+import com.gakkomobile.subject.SubjectEntity;
 import com.gakkomobile.subject.SubjectType;
 import com.gakkomobile.user.Role;
-import com.gakkomobile.user.User;
+import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
 import com.gakkomobile.user.exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -151,44 +151,44 @@ class GroupClassServiceTest {
         assertThat(response.msTeamsCode()).isEqualTo("teams-123");
     }
 
-    private GroupClass createMockGroupClass() {
-        Building building = new Building();
+    private GroupClassEntity createMockGroupClass() {
+        BuildingEntity building = new BuildingEntity();
         building.setName("Main Campus");
 
-        Room room = new Room();
+        RoomEntity room = new RoomEntity();
         room.setName("Aula A");
         room.setBuilding(building);
 
-        Subject subject = new Subject();
+        SubjectEntity subject = new SubjectEntity();
         subject.setName("English B22");
         subject.setCode("ENG");
         subject.setType(SubjectType.LANGUAGE_COURSE);
 
-        User regularStudent = new User();
+        UserEntity regularStudent = new UserEntity();
         regularStudent.setRole(Role.STUDENT);
-        GroupMembership regMem = new GroupMembership();
+        GroupMembershipEntity regMem = new GroupMembershipEntity();
         regMem.setUser(regularStudent);
         regMem.setItn(false);
 
-        User itnStudent = new User();
+        UserEntity itnStudent = new UserEntity();
         itnStudent.setRole(Role.STUDENT);
-        GroupMembership itnMem = new GroupMembership();
+        GroupMembershipEntity itnMem = new GroupMembershipEntity();
         itnMem.setUser(itnStudent);
         itnMem.setItn(true);
 
-        User lecturer = new User();
+        UserEntity lecturer = new UserEntity();
         lecturer.setRole(Role.LECTURER);
         lecturer.setFirstName("Jan");
         lecturer.setLastName("Kowalski");
-        GroupMembership lecMem = new GroupMembership();
+        GroupMembershipEntity lecMem = new GroupMembershipEntity();
         lecMem.setUser(lecturer);
         lecMem.setItn(false);
 
-        AcademicGroup group = new AcademicGroup();
+        AcademicGroupEntity group = new AcademicGroupEntity();
         group.setName("WIs I.1");
         group.setMemberships(Set.of(regMem, itnMem, lecMem));
 
-        GroupClass gc = new GroupClass();
+        GroupClassEntity gc = new GroupClassEntity();
         gc.setRoom(room);
         gc.setSubject(subject);
         gc.setGroups(Set.of(group));

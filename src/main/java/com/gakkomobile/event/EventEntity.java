@@ -1,6 +1,6 @@
 package com.gakkomobile.event;
 
-import com.gakkomobile.building.Building;
+import com.gakkomobile.building.BuildingEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "events")
 @Getter
 @Setter
-public class Event {
+public class EventEntity {
 
     @Id
     @Column(name = "id", updatable = false, nullable = false)
@@ -29,7 +29,7 @@ public class Event {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id", nullable = false)
-    private Building building;
+    private BuildingEntity building;
 
     @Column(name = "start_timestamp", nullable = false)
     private OffsetDateTime startTimestamp;

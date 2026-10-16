@@ -21,7 +21,7 @@ public class EventService {
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
-        List<Event> events = eventRepository.findEventsByDate(startOfDay, endOfDay);
+        List<EventEntity> events = eventRepository.findEventsByDate(startOfDay, endOfDay);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         return events.stream().map(event -> new EventResponse(

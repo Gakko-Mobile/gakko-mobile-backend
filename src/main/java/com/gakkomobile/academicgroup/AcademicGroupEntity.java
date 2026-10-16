@@ -1,7 +1,7 @@
 package com.gakkomobile.academicgroup;
 
-import com.gakkomobile.groupmembership.GroupMembership;
-import com.gakkomobile.studies.Studies;
+import com.gakkomobile.groupmembership.GroupMembershipEntity;
+import com.gakkomobile.studies.StudiesEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Table(name = "academic_groups")
 @Getter
 @Setter
-public class AcademicGroup {
+public class AcademicGroupEntity {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
@@ -30,11 +30,11 @@ public class AcademicGroup {
     private String academicYear;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<GroupMembership> memberships = new HashSet<>();
+    private Set<GroupMembershipEntity> memberships = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studies_id", nullable = false)
-    private Studies studies;
+    private StudiesEntity studies;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
