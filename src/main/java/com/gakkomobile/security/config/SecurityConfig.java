@@ -1,6 +1,7 @@
 package com.gakkomobile.security.config;
 
 import com.gakkomobile.security.jwt.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -31,19 +32,19 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/register",
-                                "/api/auth/login",
-                                "/api/auth/refresh"
+                                "/auth/register",
+                                "/auth/login",
+                                "/auth/refresh"
                         ).permitAll()
                         .requestMatchers(
-                                "/api/users/identifiers",
-                                "/api/group-classes/day",
-                                "/api/academic-groups/indetifiers",
-                                "/api/studies"
+                                "/users/identifiers",
+                                "/group-classes/day",
+                                "/academic-groups/indetifiers",
+                                "/studies"
                         ).hasAnyAuthority("STUDENT", "EMPLOYEE", "ADMIN", "LECTURER")
                         .requestMatchers(
                                 "/error",
-                                "/api/events/day"
+                                "/events/day"
                         )
                         .permitAll()
                         .anyRequest()
