@@ -43,11 +43,10 @@ public class GroupClassService {
 
         List<GroupClassEntity> groupClasses = switch (filterOption) {
             case INDIVIDUAL -> {
-                if (Objects.isNull(userEmail)) {
-                    throw new BadSearchParamsException(
-                            ExceptionErrorConstants.EMAIL_NOT_PROVIDED
-                    );
-                }
+                checkIfSearchParamNullAndThrow(
+                        userEmail,
+                        ExceptionErrorConstants.EMAIL_NOT_PROVIDED
+                );
 
                 if (!userRepository.existsByEmail(userEmail)) {
                     throw new UserNotFoundException();
@@ -57,11 +56,10 @@ public class GroupClassService {
                         .findClassesByUserEmailAndDate(userEmail, startOfDay, endOfDay);
             }
             case GROUP -> {
-                if (Objects.isNull(groupId)) {
-                    throw new BadSearchParamsException(
-                            ExceptionErrorConstants.ACADEMIC_GROUP_NAME_NOT_PROVIDED
-                    );
-                }
+                checkIfSearchParamNullAndThrow(
+                        groupId,
+                        ExceptionErrorConstants.ACADEMIC_GROUP_NAME_NOT_PROVIDED
+                );
 
                 if (!academicGroupRepository.existsById(groupId)) {
                     throw new AcademicGroupNotFoundException();
@@ -79,6 +77,12 @@ public class GroupClassService {
                 .stream()
                 .map(gc -> convertGroupClassToResponse(gc, timeFormatter))
                 .toList();
+    }
+
+    private void checkIfSearchParamNullAndThrow(Object param, String exceptionMessage) {
+        if (Objects.isNull(param)) {
+            throw new BadSearchParamsException(exceptionMessage);
+        }
     }
 
     private GroupClassResponseDTO convertGroupClassToResponse(
