@@ -17,7 +17,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/identifiers")
+        @GetMapping("/identifiers")
     public ResponseEntity<List<UserIdentifiersResponseDTO>> searchUserIdentifiers(
             @AuthenticationPrincipal UserEntity user,
             @RequestParam(name = "name-or-index-search") String nameIndexSearch,

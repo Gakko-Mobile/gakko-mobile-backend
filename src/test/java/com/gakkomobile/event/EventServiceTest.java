@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,6 +26,9 @@ class EventServiceTest {
 
     @Mock
     private EventRepository eventRepository;
+
+    @Mock
+    private EventMapper eventMapper;
 
     @InjectMocks
     private EventService eventService;
@@ -56,8 +60,20 @@ class EventServiceTest {
         event2.setStartTimestamp(OffsetDateTime.of(2026, 10, 3, 19, 30, 0, 0, ZoneOffset.UTC));
         event2.setEndTimestamp(OffsetDateTime.of(2026, 10, 3, 23, 45, 0, 0, ZoneOffset.UTC));
 
+        EventResponseDTO dto1 = new EventResponseDTO(
+                event1.getId(), "Career Services", "Tech Industry Resume Workshop",
+                "Main Campus Building", "2026-10-03", "16:00", "18:00"
+        );
+
+        EventResponseDTO dto2 = new EventResponseDTO(
+                event2.getId(), "Student Board", "Welcome Semester Integration Party",
+                "Main Campus Building", "2026-10-03", "19:30", "23:45"
+        );
+
         when(eventRepository.findEventsByDate(startOfDay, endOfDay))
                 .thenReturn(List.of(event1, event2));
+        when(eventMapper.toDto(event1)).thenReturn(dto1);
+        when(eventMapper.toDto(event2)).thenReturn(dto2);
 
         // when
         List<EventResponseDTO> result = eventService.getEventsByDate(targetDate);
@@ -81,6 +97,8 @@ class EventServiceTest {
         assertThat(response2.endTime()).isEqualTo("23:45");
 
         verify(eventRepository).findEventsByDate(startOfDay, endOfDay);
+        verify(eventMapper).toDto(event1);
+        verify(eventMapper).toDto(event2);
     }
 
     @Test
@@ -99,5 +117,6 @@ class EventServiceTest {
         // then
         assertThat(result).isEmpty();
         verify(eventRepository).findEventsByDate(startOfDay, endOfDay);
+        verifyNoInteractions(eventMapper);
     }
 }

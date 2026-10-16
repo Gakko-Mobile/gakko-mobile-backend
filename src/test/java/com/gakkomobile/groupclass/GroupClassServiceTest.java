@@ -1,18 +1,10 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.AcademicGroupEntity;
 import com.gakkomobile.academicgroup.AcademicGroupRepository;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
-import com.gakkomobile.building.BuildingEntity;
 import com.gakkomobile.exception.BadSearchParamsException;
 import com.gakkomobile.groupclass.dto.GroupClassResponseDTO;
 import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
-import com.gakkomobile.groupmembership.GroupMembershipEntity;
-import com.gakkomobile.room.RoomEntity;
-import com.gakkomobile.subject.SubjectEntity;
-import com.gakkomobile.subject.SubjectType;
-import com.gakkomobile.user.Role;
-import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
 import com.gakkomobile.user.exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -42,6 +34,8 @@ class GroupClassServiceTest {
     private UserRepository userRepository;
     @Mock
     private AcademicGroupRepository academicGroupRepository;
+    @Mock
+    private GroupClassMapper groupClassMapper;
 
     @InjectMocks
     private GroupClassService groupClassService;
@@ -54,9 +48,13 @@ class GroupClassServiceTest {
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
+        GroupClassEntity entity = new GroupClassEntity();
+        GroupClassResponseDTO expectedDto = createMockDto();
+
         when(userRepository.existsByEmail(email)).thenReturn(true);
         when(groupClassRepository.findClassesByUserEmailAndDate(email, startOfDay, endOfDay))
-                .thenReturn(List.of(createMockGroupClass()));
+                .thenReturn(List.of(entity));
+        when(groupClassMapper.toDto(entity)).thenReturn(expectedDto);
 
         // when
         List<GroupClassResponseDTO> result = groupClassService.getDailySchedule(
@@ -65,8 +63,10 @@ class GroupClassServiceTest {
 
         // then
         assertThat(result).hasSize(1);
-        verifyMappingLogic(result.get(0));
+        assertThat(result.get(0)).isEqualTo(expectedDto);
+
         verify(groupClassRepository).findClassesByUserEmailAndDate(email, startOfDay, endOfDay);
+        verify(groupClassMapper).toDto(entity);
     }
 
     @Test
@@ -79,7 +79,7 @@ class GroupClassServiceTest {
                 ScheduleFilterOption.INDIVIDUAL, null, null, date))
                 .isInstanceOf(BadSearchParamsException.class);
 
-        verifyNoInteractions(userRepository, groupClassRepository);
+        verifyNoInteractions(userRepository, groupClassRepository, groupClassMapper);
     }
 
     @Test
@@ -95,7 +95,7 @@ class GroupClassServiceTest {
                 ScheduleFilterOption.INDIVIDUAL, email, null, date))
                 .isInstanceOf(UserNotFoundException.class);
 
-        verifyNoInteractions(groupClassRepository);
+        verifyNoInteractions(groupClassRepository, groupClassMapper);
     }
 
     @Test
@@ -106,9 +106,13 @@ class GroupClassServiceTest {
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
+        GroupClassEntity entity = new GroupClassEntity();
+        GroupClassResponseDTO expectedDto = createMockDto();
+
         when(academicGroupRepository.existsById(groupId)).thenReturn(true);
         when(groupClassRepository.findClassesByGroupIdAndDate(groupId, startOfDay, endOfDay))
-                .thenReturn(List.of(createMockGroupClass()));
+                .thenReturn(List.of(entity));
+        when(groupClassMapper.toDto(entity)).thenReturn(expectedDto);
 
         // when
         List<GroupClassResponseDTO> result = groupClassService.getDailySchedule(
@@ -117,8 +121,10 @@ class GroupClassServiceTest {
 
         // then
         assertThat(result).hasSize(1);
-        verifyMappingLogic(result.get(0));
+        assertThat(result.get(0)).isEqualTo(expectedDto);
+
         verify(groupClassRepository).findClassesByGroupIdAndDate(groupId, startOfDay, endOfDay);
+        verify(groupClassMapper).toDto(entity);
     }
 
     @Test
@@ -131,7 +137,7 @@ class GroupClassServiceTest {
                 ScheduleFilterOption.GROUP, null, null, date))
                 .isInstanceOf(BadSearchParamsException.class);
 
-        verifyNoInteractions(academicGroupRepository, groupClassRepository);
+        verifyNoInteractions(academicGroupRepository, groupClassRepository, groupClassMapper);
     }
 
     @Test
@@ -147,68 +153,25 @@ class GroupClassServiceTest {
                 ScheduleFilterOption.GROUP, null, groupId, date))
                 .isInstanceOf(AcademicGroupNotFoundException.class);
 
-        verifyNoInteractions(groupClassRepository);
+        verifyNoInteractions(groupClassRepository, groupClassMapper);
     }
 
-    private void verifyMappingLogic(GroupClassResponseDTO response) {
-        assertThat(response.regularStudentsNum()).isEqualTo(1);
-        assertThat(response.itnStudentsNum()).isEqualTo(1);
-        assertThat(response.lecturers()).containsExactly("Kowalski Jan");
-        assertThat(response.groups()).containsExactly("WIs I.1");
-        assertThat(response.classType()).isEqualTo("language course");
-        assertThat(response.durationInMins()).isEqualTo(90);
-        assertThat(response.startTime()).isEqualTo("08:15");
-        assertThat(response.endTime()).isEqualTo("09:45");
-        assertThat(response.room()).isEqualTo("Aula A");
-        assertThat(response.building()).isEqualTo("Main Campus");
-        assertThat(response.msTeamsCode()).isEqualTo("teams-123");
-    }
-
-    private GroupClassEntity createMockGroupClass() {
-        BuildingEntity building = new BuildingEntity();
-        building.setName("Main Campus");
-
-        RoomEntity room = new RoomEntity();
-        room.setName("Aula A");
-        room.setBuilding(building);
-
-        SubjectEntity subject = new SubjectEntity();
-        subject.setName("English B22");
-        subject.setCode("ENG");
-        subject.setType(SubjectType.LANGUAGE_COURSE);
-
-        UserEntity regularStudent = new UserEntity();
-        regularStudent.setRole(Role.STUDENT);
-        GroupMembershipEntity regMem = new GroupMembershipEntity();
-        regMem.setUser(regularStudent);
-        regMem.setItn(false);
-
-        UserEntity itnStudent = new UserEntity();
-        itnStudent.setRole(Role.STUDENT);
-        GroupMembershipEntity itnMem = new GroupMembershipEntity();
-        itnMem.setUser(itnStudent);
-        itnMem.setItn(true);
-
-        UserEntity lecturer = new UserEntity();
-        lecturer.setRole(Role.LECTURER);
-        lecturer.setFirstName("Jan");
-        lecturer.setLastName("Kowalski");
-        GroupMembershipEntity lecMem = new GroupMembershipEntity();
-        lecMem.setUser(lecturer);
-        lecMem.setItn(false);
-
-        AcademicGroupEntity group = new AcademicGroupEntity();
-        group.setName("WIs I.1");
-        group.setMemberships(Set.of(regMem, itnMem, lecMem));
-
-        GroupClassEntity gc = new GroupClassEntity();
-        gc.setRoom(room);
-        gc.setSubject(subject);
-        gc.setGroups(Set.of(group));
-        gc.setStartTimestamp(OffsetDateTime.of(2026, 10, 3, 8, 15, 0, 0, ZoneOffset.UTC));
-        gc.setEndTimestamp(OffsetDateTime.of(2026, 10, 3, 9, 45, 0, 0, ZoneOffset.UTC));
-        gc.setMsTeamsCode("teams-123");
-
-        return gc;
+    private GroupClassResponseDTO createMockDto() {
+        return new GroupClassResponseDTO(
+                1,
+                1,
+                "English B22",
+                "ENG",
+                "language course",
+                Set.of("WIs I.1"),
+                Set.of("Kowalski Jan"),
+                "Main Campus",
+                "Aula A",
+                "2026-10-03",
+                "08:15",
+                "09:45",
+                90,
+                "teams-123"
+        );
     }
 }

@@ -25,6 +25,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserMapper userMapper;
+
     @InjectMocks
     private UserService userService;
 
@@ -42,8 +45,13 @@ class UserServiceTest {
         student.setLastName("Novikova");
         student.setIndexNumber("s12345");
 
+        UserIdentifiersResponseDTO expectedDto = new UserIdentifiersResponseDTO(
+                "danisa@gmail.com", "Novikova Danisa", "s12345"
+        );
+
         when(userRepository.searchByFullNameOrIndex(searchQuery, pageable))
                 .thenReturn(List.of(student));
+        when(userMapper.toDto(student)).thenReturn(expectedDto);
 
         // when
         List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
@@ -58,6 +66,7 @@ class UserServiceTest {
         assertThat(response.index()).isEqualTo("s12345");
 
         verify(userRepository).searchByFullNameOrIndex(searchQuery, pageable);
+        verify(userMapper).toDto(student);
         verifyNoMoreInteractions(userRepository);
     }
 
@@ -75,8 +84,13 @@ class UserServiceTest {
         lecturer.setLastName("Kowalski");
         lecturer.setIndexNumber("emp123");
 
+        UserIdentifiersResponseDTO expectedDto = new UserIdentifiersResponseDTO(
+                "jan@pjatk.edu.pl", "Kowalski Jan", "emp123"
+        );
+
         when(userRepository.searchByFullName(searchQuery, pageable))
                 .thenReturn(List.of(lecturer));
+        when(userMapper.toDto(lecturer)).thenReturn(expectedDto);
 
         // when
         List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
@@ -88,6 +102,7 @@ class UserServiceTest {
         assertThat(result.get(0).fullName()).isEqualTo("Kowalski Jan");
 
         verify(userRepository).searchByFullName(searchQuery, pageable);
+        verify(userMapper).toDto(lecturer);
     }
 
     @Test
@@ -103,8 +118,13 @@ class UserServiceTest {
         employee.setFirstName("Anna");
         employee.setLastName("Nowak");
 
+        UserIdentifiersResponseDTO expectedDto = new UserIdentifiersResponseDTO(
+                "emp@pjatk.edu.pl", "Nowak Anna", null
+        );
+
         when(userRepository.searchByFullName(searchQuery, pageable))
                 .thenReturn(List.of(employee));
+        when(userMapper.toDto(employee)).thenReturn(expectedDto);
 
         // when
         List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
@@ -113,7 +133,10 @@ class UserServiceTest {
 
         // then
         assertThat(result).hasSize(1);
+        assertThat(result.get(0).email()).isEqualTo("emp@pjatk.edu.pl");
+
         verify(userRepository).searchByFullName(searchQuery, pageable);
+        verify(userMapper).toDto(employee);
     }
 
     @Test
@@ -134,7 +157,7 @@ class UserServiceTest {
                     assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
                 });
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(userRepository, userMapper);
     }
 
     @Test
@@ -154,5 +177,6 @@ class UserServiceTest {
         // then
         assertThat(result).isEmpty();
         verify(userRepository).searchByFullNameOrIndex(searchQuery, pageable);
+        verifyNoInteractions(userMapper);
     }
 }

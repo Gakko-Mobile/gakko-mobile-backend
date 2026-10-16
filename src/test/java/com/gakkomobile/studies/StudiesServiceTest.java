@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,6 +21,9 @@ class StudiesServiceTest {
 
     @Mock
     private StudiesRepository studiesRepository;
+
+    @Mock
+    private StudiesMapper studiesMapper;
 
     @InjectMocks
     private StudiesService studiesService;
@@ -35,7 +39,12 @@ class StudiesServiceTest {
         study2.setId(UUID.randomUUID());
         study2.setName("New Media Arts - Graphic Design");
 
+        StudiesResponseDTO dto1 = new StudiesResponseDTO(study1.getId(), study1.getName());
+        StudiesResponseDTO dto2 = new StudiesResponseDTO(study2.getId(), study2.getName());
+
         when(studiesRepository.findAll()).thenReturn(List.of(study1, study2));
+        when(studiesMapper.toDto(study1)).thenReturn(dto1);
+        when(studiesMapper.toDto(study2)).thenReturn(dto2);
 
         // when
         List<StudiesResponseDTO> result = studiesService.getAll();
@@ -52,6 +61,8 @@ class StudiesServiceTest {
         assertThat(response2.name()).isEqualTo(study2.getName());
 
         verify(studiesRepository).findAll();
+        verify(studiesMapper).toDto(study1);
+        verify(studiesMapper).toDto(study2);
     }
 
     @Test
@@ -65,5 +76,6 @@ class StudiesServiceTest {
         // then
         assertThat(result).isEmpty();
         verify(studiesRepository).findAll();
+        verifyNoInteractions(studiesMapper);
     }
 }

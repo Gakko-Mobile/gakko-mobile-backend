@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public List<UserIdentifiersResponseDTO> searchUserIdentifiers(
             Role userRole,
@@ -41,10 +42,7 @@ public class UserService {
         };
 
         return users.stream()
-                .map(u -> new UserIdentifiersResponseDTO(
-                        u.getEmail(),
-                        String.format("%s %s", u.getLastName(), u.getFirstName()),
-                        u.getIndexNumber()
-                )).toList();
+                .map(userMapper::toDto)
+                .toList();
     }
 }

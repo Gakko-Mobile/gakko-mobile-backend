@@ -10,14 +10,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudiesService {
     private final StudiesRepository studiesRepository;
+    private final StudiesMapper studiesMapper;
 
     public List<StudiesResponseDTO> getAll() {
         return studiesRepository
                 .findAll()
                 .stream()
-                .map(s -> new StudiesResponseDTO(
-                        s.getId(),
-                        s.getName()
-                )).toList();
+                .map(studiesMapper::toDto)
+                .toList();
     }
 }

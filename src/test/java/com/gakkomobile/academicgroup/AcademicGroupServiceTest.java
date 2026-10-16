@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +22,9 @@ class AcademicGroupServiceTest {
 
     @Mock
     private AcademicGroupRepository academicGroupRepository;
+
+    @Mock
+    private AcademicGroupMapper academicGroupMapper;
 
     @InjectMocks
     private AcademicGroupService academicGroupService;
@@ -47,8 +51,15 @@ class AcademicGroupServiceTest {
         group2.setAcademicYear(academicYear);
         group2.setStudies(studies);
 
+        AcademicGroupIdentifiersResponseDTO dto1 = new AcademicGroupIdentifiersResponseDTO(
+                group1.getId(), studiesName, academicYear, group1.getName());
+        AcademicGroupIdentifiersResponseDTO dto2 = new AcademicGroupIdentifiersResponseDTO(
+                group2.getId(), studiesName, academicYear, group2.getName());
+
         when(academicGroupRepository.findAllByStudies_NameAndAcademicYear(studiesName, academicYear))
                 .thenReturn(List.of(group1, group2));
+        when(academicGroupMapper.toDto(group1)).thenReturn(dto1);
+        when(academicGroupMapper.toDto(group2)).thenReturn(dto2);
 
         // when
         List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
@@ -67,6 +78,8 @@ class AcademicGroupServiceTest {
         assertThat(response2.name()).isEqualTo("WIs I.2");
 
         verify(academicGroupRepository).findAllByStudies_NameAndAcademicYear(studiesName, academicYear);
+        verify(academicGroupMapper).toDto(group1);
+        verify(academicGroupMapper).toDto(group2);
     }
 
     @Test
@@ -84,5 +97,6 @@ class AcademicGroupServiceTest {
         // then
         assertThat(result).isEmpty();
         verify(academicGroupRepository).findAllByStudies_NameAndAcademicYear(studiesName, academicYear);
+        verifyNoInteractions(academicGroupMapper);
     }
 }

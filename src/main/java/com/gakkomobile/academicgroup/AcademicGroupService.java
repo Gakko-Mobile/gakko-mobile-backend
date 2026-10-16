@@ -10,6 +10,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AcademicGroupService {
     private final AcademicGroupRepository academicGroupRepository;
+    private final AcademicGroupMapper academicGroupMapper;
 
     public List<AcademicGroupIdentifiersResponseDTO> searchUserIdentifiers(
             String studiesName,
@@ -18,11 +19,7 @@ public class AcademicGroupService {
         return academicGroupRepository
                 .findAllByStudies_NameAndAcademicYear(studiesName, academicYear)
                 .stream()
-                .map(ag -> new AcademicGroupIdentifiersResponseDTO(
-                        ag.getId(),
-                        ag.getStudies().getName(),
-                        ag.getAcademicYear(),
-                        ag.getName()
-                )).toList();
+                .map(academicGroupMapper::toDto)
+                .toList();
     }
 }
