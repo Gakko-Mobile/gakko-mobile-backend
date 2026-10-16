@@ -27,6 +27,7 @@ class AcademicGroupServiceTest {
 
     @Test
     void searchUserIdentifiers_ShouldReturnMappedResponses_WhenGroupsFound() {
+        // given
         String studiesName = "Computer Science - Web Development";
         String academicYear = "2026/2027";
 
@@ -49,8 +50,10 @@ class AcademicGroupServiceTest {
         when(academicGroupRepository.findAllByStudies_NameAndAcademicYear(studiesName, academicYear))
                 .thenReturn(List.of(group1, group2));
 
+        // when
         List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
 
+        // then
         assertThat(result).hasSize(2);
 
         AcademicGroupIdentifiersResponseDTO response1 = result.get(0);
@@ -68,14 +71,17 @@ class AcademicGroupServiceTest {
 
     @Test
     void searchUserIdentifiers_ShouldReturnEmptyList_WhenNoGroupsFound() {
+        // given
         String studiesName = "Unknown Studies";
         String academicYear = "2099/2100";
 
         when(academicGroupRepository.findAllByStudies_NameAndAcademicYear(studiesName, academicYear))
                 .thenReturn(Collections.emptyList());
 
+        // when
         List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
 
+        // then
         assertThat(result).isEmpty();
         verify(academicGroupRepository).findAllByStudies_NameAndAcademicYear(studiesName, academicYear);
     }

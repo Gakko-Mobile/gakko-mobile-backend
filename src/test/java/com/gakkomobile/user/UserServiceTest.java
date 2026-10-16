@@ -30,6 +30,7 @@ class UserServiceTest {
 
     @Test
     void searchUserIdentifiers_WhenSearchingStudents_ShouldCallSearchByFullNameOrIndex() {
+        // given
         String searchQuery = "danisa";
         int pageNum = 0;
         int limit = 10;
@@ -44,10 +45,12 @@ class UserServiceTest {
         when(userRepository.searchByFullNameOrIndex(searchQuery, pageable))
                 .thenReturn(List.of(student));
 
+        // when
         List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.STUDENT, searchQuery, Role.STUDENT, pageNum, limit
         );
 
+        // then
         assertThat(result).hasSize(1);
         UserIdentifiersResponseDTO response = result.get(0);
         assertThat(response.email()).isEqualTo("danisa@gmail.com");
@@ -60,6 +63,7 @@ class UserServiceTest {
 
     @Test
     void searchUserIdentifiers_WhenSearchingLecturers_ShouldCallSearchByFullName() {
+        // given
         String searchQuery = "kowalski";
         int pageNum = 0;
         int limit = 10;
@@ -74,10 +78,12 @@ class UserServiceTest {
         when(userRepository.searchByFullName(searchQuery, pageable))
                 .thenReturn(List.of(lecturer));
 
+        // when
         List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.STUDENT, searchQuery, Role.LECTURER, pageNum, limit
         );
 
+        // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).fullName()).isEqualTo("Kowalski Jan");
 
@@ -86,6 +92,7 @@ class UserServiceTest {
 
     @Test
     void searchUserIdentifiers_WhenSearchingOtherRolesAsAdmin_ShouldCallSearchByFullName() {
+        // given
         String searchQuery = "admin";
         int pageNum = 0;
         int limit = 10;
@@ -99,20 +106,24 @@ class UserServiceTest {
         when(userRepository.searchByFullName(searchQuery, pageable))
                 .thenReturn(List.of(employee));
 
+        // when
         List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.ADMIN, searchQuery, Role.EMPLOYEE, pageNum, limit
         );
 
+        // then
         assertThat(result).hasSize(1);
         verify(userRepository).searchByFullName(searchQuery, pageable);
     }
 
     @Test
     void searchUserIdentifiers_WhenSearchingOtherRolesAsNonAdmin_ShouldThrowForbidden() {
+        // given
         String searchQuery = "admin";
         int pageNum = 0;
         int limit = 10;
 
+        // when and then
         assertThatThrownBy(() -> userService.searchUserIdentifiers(
                 Role.STUDENT, searchQuery, Role.EMPLOYEE, pageNum, limit
         ))
@@ -128,16 +139,19 @@ class UserServiceTest {
 
     @Test
     void searchUserIdentifiers_ShouldReturnEmptyList_WhenNoUsersFound() {
+        // given
         String searchQuery = "unknown";
         Pageable pageable = PageRequest.of(0, 10);
 
         when(userRepository.searchByFullNameOrIndex(searchQuery, pageable))
                 .thenReturn(Collections.emptyList());
 
+        // when
         List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.STUDENT, searchQuery, Role.STUDENT, 0, 10
         );
 
+        // then
         assertThat(result).isEmpty();
         verify(userRepository).searchByFullNameOrIndex(searchQuery, pageable);
     }

@@ -31,6 +31,7 @@ class EventServiceTest {
 
     @Test
     void getEventsByDate_ShouldReturnMappedResponses_WhenEventsFound() {
+        // given
         LocalDate targetDate = LocalDate.of(2026, 10, 3);
         OffsetDateTime startOfDay = targetDate.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
@@ -58,8 +59,10 @@ class EventServiceTest {
         when(eventRepository.findEventsByDate(startOfDay, endOfDay))
                 .thenReturn(List.of(event1, event2));
 
+        // when
         List<EventResponseDTO> result = eventService.getEventsByDate(targetDate);
 
+        // then
         assertThat(result).hasSize(2);
 
         EventResponseDTO response1 = result.get(0);
@@ -82,6 +85,7 @@ class EventServiceTest {
 
     @Test
     void getEventsByDate_ShouldReturnEmptyList_WhenNoEventsFound() {
+        // given
         LocalDate targetDate = LocalDate.of(2026, 10, 4);
         OffsetDateTime startOfDay = targetDate.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
@@ -89,8 +93,10 @@ class EventServiceTest {
         when(eventRepository.findEventsByDate(startOfDay, endOfDay))
                 .thenReturn(Collections.emptyList());
 
+        // when
         List<EventResponseDTO> result = eventService.getEventsByDate(targetDate);
 
+        // then
         assertThat(result).isEmpty();
         verify(eventRepository).findEventsByDate(startOfDay, endOfDay);
     }

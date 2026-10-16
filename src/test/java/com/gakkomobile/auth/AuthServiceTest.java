@@ -59,6 +59,7 @@ class AuthServiceTest {
 
     @Test
     void register_ShouldReturnAuthResponse_WhenValidRequest() {
+        // given
         RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", "s12345", "12345678901", email, "Password123!"
         );
@@ -70,8 +71,10 @@ class AuthServiceTest {
         when(jwtService.generateAccessToken(any(UserEntity.class))).thenReturn(accessToken);
         when(jwtService.generateRefreshToken(any(UserEntity.class))).thenReturn(refreshToken);
 
+        // when
         AuthResponseDTO response = authService.register(request);
 
+        // then
         assertNotNull(response);
         assertEquals(accessToken, response.accessToken());
         assertEquals(refreshToken, response.refreshToken());
@@ -83,18 +86,21 @@ class AuthServiceTest {
 
     @Test
     void register_ShouldThrowException_WhenEmailAlreadyExists() {
+        // given
         RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", null, null, email, "Password123!"
         );
 
         when(repository.existsByEmail(request.email())).thenReturn(true);
 
+        // when and then
         assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
         verify(repository, never()).save(any(UserEntity.class));
     }
 
     @Test
     void register_ShouldThrowException_WhenIndexNumberAlreadyExists() {
+        // given
         RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", "s12345", null, email, "Password123!"
         );
@@ -102,12 +108,14 @@ class AuthServiceTest {
         when(repository.existsByEmail(request.email())).thenReturn(false);
         when(repository.existsByIndexNumber(request.indexNumber())).thenReturn(true);
 
+        // when and then
         assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
         verify(repository, never()).save(any(UserEntity.class));
     }
 
     @Test
     void register_ShouldThrowException_WhenPeselAlreadyExists() {
+        // given
         RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", null, "12345678901", email, "Password123!"
         );
@@ -116,12 +124,14 @@ class AuthServiceTest {
         // Note: The service only checks PESEL if it is not null and not blank
         when(repository.existsByPesel(request.pesel())).thenReturn(true);
 
+        // when and then
         assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
         verify(repository, never()).save(any(UserEntity.class));
     }
 
     @Test
     void login_ShouldReturnAuthResponseAndBlacklistOldToken() {
+        // given
         LoginRequestDTO request = new LoginRequestDTO(email, "Password123!");
         Date mockExpiration = new Date(System.currentTimeMillis() + 10000);
 
@@ -130,8 +140,10 @@ class AuthServiceTest {
         when(jwtService.generateRefreshToken(testUser)).thenReturn(refreshToken);
         when(jwtService.extractExpiration("old.refresh.jwt.token")).thenReturn(mockExpiration);
 
+        // when
         AuthResponseDTO response = authService.login(request);
 
+        // then
         verify(authenticationManager).authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
@@ -149,6 +161,7 @@ class AuthServiceTest {
 
     @Test
     void login_ShouldNotCrash_WhenOldTokenIsAlreadyExpired() {
+        // given
         LoginRequestDTO request = new LoginRequestDTO(email, "Password123!");
 
         when(repository.findByEmail(email)).thenReturn(Optional.of(testUser));
@@ -158,8 +171,10 @@ class AuthServiceTest {
         when(jwtService.extractExpiration("old.refresh.jwt.token"))
                 .thenThrow(new ExpiredJwtException(null, null, "Expired"));
 
+        // when
         AuthResponseDTO response = authService.login(request);
 
+        // then
         assertNotNull(response);
         verify(blacklistedTokenRepository, never()).save(any(BlacklistedToken.class));
         verify(repository).save(testUser);
@@ -167,6 +182,7 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldReturnNewTokens_WhenValid() {
+        // given
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         testUser.setRefreshToken(refreshToken);
 
@@ -176,8 +192,10 @@ class AuthServiceTest {
         when(jwtService.isTokenValid(refreshToken, testUser)).thenReturn(true);
         when(jwtService.generateAccessToken(testUser)).thenReturn("new.access.token");
 
+        // when
         AuthResponseDTO response = authService.refreshToken(request);
 
+        // then
         assertNotNull(response);
         assertEquals("new.access.token", response.accessToken());
         assertEquals(refreshToken, response.refreshToken());
@@ -185,14 +203,17 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldThrowException_WhenTokenIsBlacklisted() {
+        // given
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         when(blacklistedTokenRepository.existsById(refreshToken)).thenReturn(true);
 
+        // when and then
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refreshToken(request));
     }
 
     @Test
     void refreshToken_ShouldThrowException_WhenTokenDoesNotMatchDatabase() {
+        // given
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         testUser.setRefreshToken("different.token.in.db");
 
@@ -200,16 +221,19 @@ class AuthServiceTest {
         when(jwtService.extractUsername(refreshToken)).thenReturn(email);
         when(repository.findByEmail(email)).thenReturn(Optional.of(testUser));
 
+        // when and then
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refreshToken(request));
     }
 
     @Test
     void refreshToken_ShouldThrowException_WhenExtractedEmailIsNull() {
+        // given
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
 
         when(blacklistedTokenRepository.existsById(refreshToken)).thenReturn(false);
         when(jwtService.extractUsername(refreshToken)).thenReturn(null);
 
+        // when and then
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refreshToken(request));
 
         verify(repository, never()).findByEmail(anyString());
@@ -217,6 +241,7 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldThrowException_WhenTokenIsInvalid() {
+        // given
         RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         testUser.setRefreshToken(refreshToken);
 
@@ -226,6 +251,7 @@ class AuthServiceTest {
 
         when(jwtService.isTokenValid(refreshToken, testUser)).thenReturn(false);
 
+        // when and then
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refreshToken(request));
 
         verify(jwtService, never()).generateAccessToken(any(UserEntity.class));
@@ -233,32 +259,43 @@ class AuthServiceTest {
 
     @Test
     void logout_ShouldBlacklistBothTokens_WhenValid() {
+        // given
         String authHeader = "Bearer " + accessToken;
         Date mockDate = new Date();
 
         when(jwtService.extractExpiration(accessToken)).thenReturn(mockDate);
         when(jwtService.extractExpiration(refreshToken)).thenReturn(mockDate);
 
+        // when
         boolean result = authService.logout(authHeader, refreshToken);
 
+        // then
         assertTrue(result);
         verify(blacklistedTokenRepository, times(2)).save(any(BlacklistedToken.class));
     }
 
     @Test
     void logout_ShouldReturnFalse_WhenAuthHeaderIsInvalid() {
-        boolean result = authService.logout("InvalidHeader", refreshToken);
+        // given
+        String invalidHeader = "InvalidHeader";
 
+        // when
+        boolean result = authService.logout(invalidHeader, refreshToken);
+
+        // then
         assertFalse(result);
         verify(blacklistedTokenRepository, never()).save(any(BlacklistedToken.class));
     }
 
     @Test
     void logout_ShouldReturnFalse_WhenAuthHeaderIsNull() {
+        // given
         String nullAuthHeader = null;
 
+        // when
         boolean result = authService.logout(nullAuthHeader, refreshToken);
 
+        // then
         assertFalse(result);
 
         verify(blacklistedTokenRepository, never()).save(any(BlacklistedToken.class));

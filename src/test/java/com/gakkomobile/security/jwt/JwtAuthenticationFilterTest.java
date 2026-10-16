@@ -51,26 +51,33 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void doFilterInternal_ShouldContinueChain_WhenNoAuthHeader() throws ServletException, IOException {
+        // given
         when(request.getHeader("Authorization")).thenReturn(null);
 
+        // when
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
+        // then
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
     void doFilterInternal_ShouldContinueChain_WhenAuthHeaderDoesNotStartWithBearer() throws ServletException, IOException {
+        // given
         when(request.getHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
 
+        // when
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
+        // then
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
     void doFilterInternal_ShouldReturn401_WhenTokenIsBlacklisted() throws ServletException, IOException {
+        // given
         String token = "blacklisted.jwt.token";
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(blacklistedTokenRepository.existsById(token)).thenReturn(true);
@@ -78,8 +85,10 @@ class JwtAuthenticationFilterTest {
         PrintWriter printWriter = mock(PrintWriter.class);
         when(response.getWriter()).thenReturn(printWriter);
 
+        // when
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
+        // then
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(printWriter).write("Token has been invalidated (Logged out)");
 
@@ -88,6 +97,7 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void doFilterInternal_ShouldAuthenticateUser_WhenTokenIsValid() throws ServletException, IOException {
+        // given
         String token = "valid.jwt.token";
         String userEmail = "test@example.com";
 
@@ -97,8 +107,10 @@ class JwtAuthenticationFilterTest {
         when(userDetailsService.loadUserByUsername(userEmail)).thenReturn(userDetails);
         when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
 
+        // when
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
+        // then
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
 
         verify(filterChain).doFilter(request, response);
@@ -106,6 +118,7 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void doFilterInternal_ShouldContinueChainAndNotAuthenticate_WhenTokenThrowsException() throws ServletException, IOException {
+        // then
         String token = "expired.jwt.token";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
@@ -113,8 +126,10 @@ class JwtAuthenticationFilterTest {
 
         when(jwtService.extractUsername(token)).thenThrow(new ExpiredJwtException(null, null, "Token expired"));
 
+        // when
         jwtAuthenticationFilter.doFilter(request, response, filterChain);
 
+        // then
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(filterChain).doFilter(request, response);
     }

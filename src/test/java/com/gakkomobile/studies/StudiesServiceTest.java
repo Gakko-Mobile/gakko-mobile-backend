@@ -26,6 +26,7 @@ class StudiesServiceTest {
 
     @Test
     void getAll_ShouldReturnMappedResponses_WhenStudiesExist() {
+        // given
         StudiesEntity study1 = new StudiesEntity();
         study1.setId(UUID.randomUUID());
         study1.setName("Computer Science - Web Development");
@@ -36,8 +37,10 @@ class StudiesServiceTest {
 
         when(studiesRepository.findAll()).thenReturn(List.of(study1, study2));
 
+        // when
         List<StudiesResponseDTO> result = studiesService.getAll();
 
+        // then
         assertThat(result).hasSize(2);
 
         StudiesResponseDTO response1 = result.get(0);
@@ -53,10 +56,13 @@ class StudiesServiceTest {
 
     @Test
     void getAll_ShouldReturnEmptyList_WhenNoStudiesExist() {
+        // given
         when(studiesRepository.findAll()).thenReturn(Collections.emptyList());
 
+        // when
         List<StudiesResponseDTO> result = studiesService.getAll();
 
+        // then
         assertThat(result).isEmpty();
         verify(studiesRepository).findAll();
     }

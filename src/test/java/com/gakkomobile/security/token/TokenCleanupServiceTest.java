@@ -25,8 +25,10 @@ class TokenCleanupServiceTest {
 
     @Test
     void cleanUpExpiredTokens_ShouldCallRepositoryWithCurrentDate() {
+        // when
         tokenCleanupService.cleanUpExpiredTokens();
 
+        // then
         verify(blacklistedTokenRepository, times(1))
                 .deleteByExpiresAtBefore(any(Date.class));
     }
@@ -35,8 +37,10 @@ class TokenCleanupServiceTest {
     void cleanUpExpiredTokens_ShouldPassReasonableDateToRepository() {
         ArgumentCaptor<Date> dateCaptor = ArgumentCaptor.forClass(Date.class);
 
+        // when
         tokenCleanupService.cleanUpExpiredTokens();
 
+        // then
         verify(blacklistedTokenRepository).deleteByExpiresAtBefore(dateCaptor.capture());
         Date passedDate = dateCaptor.getValue();
 

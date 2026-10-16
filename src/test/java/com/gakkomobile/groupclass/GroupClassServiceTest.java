@@ -48,6 +48,7 @@ class GroupClassServiceTest {
 
     @Test
     void getDailySchedule_IndividualFilter_ShouldReturnMappedResponses() {
+        // given
         LocalDate date = LocalDate.of(2026, 10, 3);
         String email = "danisa.novikova@gmail.com";
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
@@ -57,10 +58,12 @@ class GroupClassServiceTest {
         when(groupClassRepository.findClassesByUserEmailAndDate(email, startOfDay, endOfDay))
                 .thenReturn(List.of(createMockGroupClass()));
 
+        // when
         List<GroupClassResponseDTO> result = groupClassService.getDailySchedule(
                 ScheduleFilterOption.INDIVIDUAL, email, null, date
         );
 
+        // then
         assertThat(result).hasSize(1);
         verifyMappingLogic(result.get(0));
         verify(groupClassRepository).findClassesByUserEmailAndDate(email, startOfDay, endOfDay);
@@ -68,8 +71,10 @@ class GroupClassServiceTest {
 
     @Test
     void getDailySchedule_IndividualFilter_ShouldThrowException_WhenEmailIsNull() {
+        // given
         LocalDate date = LocalDate.now();
 
+        // when and then
         assertThatThrownBy(() -> groupClassService.getDailySchedule(
                 ScheduleFilterOption.INDIVIDUAL, null, null, date))
                 .isInstanceOf(BadSearchParamsException.class);
@@ -79,11 +84,13 @@ class GroupClassServiceTest {
 
     @Test
     void getDailySchedule_IndividualFilter_ShouldThrowException_WhenUserNotFound() {
+        // given
         LocalDate date = LocalDate.now();
         String email = "unknown@gmail.com";
 
         when(userRepository.existsByEmail(email)).thenReturn(false);
 
+        // when and then
         assertThatThrownBy(() -> groupClassService.getDailySchedule(
                 ScheduleFilterOption.INDIVIDUAL, email, null, date))
                 .isInstanceOf(UserNotFoundException.class);
@@ -93,7 +100,7 @@ class GroupClassServiceTest {
 
     @Test
     void getDailySchedule_GroupFilter_ShouldReturnMappedResponses() {
-        // Arrange
+        // given
         LocalDate date = LocalDate.of(2026, 10, 3);
         UUID groupId = UUID.randomUUID();
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
@@ -103,10 +110,12 @@ class GroupClassServiceTest {
         when(groupClassRepository.findClassesByGroupIdAndDate(groupId, startOfDay, endOfDay))
                 .thenReturn(List.of(createMockGroupClass()));
 
+        // when
         List<GroupClassResponseDTO> result = groupClassService.getDailySchedule(
                 ScheduleFilterOption.GROUP, null, groupId, date
         );
 
+        // then
         assertThat(result).hasSize(1);
         verifyMappingLogic(result.get(0));
         verify(groupClassRepository).findClassesByGroupIdAndDate(groupId, startOfDay, endOfDay);
@@ -114,8 +123,10 @@ class GroupClassServiceTest {
 
     @Test
     void getDailySchedule_GroupFilter_ShouldThrowException_WhenGroupIdIsNull() {
+        // given
         LocalDate date = LocalDate.now();
 
+        // when and then
         assertThatThrownBy(() -> groupClassService.getDailySchedule(
                 ScheduleFilterOption.GROUP, null, null, date))
                 .isInstanceOf(BadSearchParamsException.class);
@@ -125,11 +136,13 @@ class GroupClassServiceTest {
 
     @Test
     void getDailySchedule_GroupFilter_ShouldThrowException_WhenGroupNotFound() {
+        // given
         LocalDate date = LocalDate.now();
         UUID groupId = UUID.randomUUID();
 
         when(academicGroupRepository.existsById(groupId)).thenReturn(false);
 
+        // when and then
         assertThatThrownBy(() -> groupClassService.getDailySchedule(
                 ScheduleFilterOption.GROUP, null, groupId, date))
                 .isInstanceOf(AcademicGroupNotFoundException.class);
