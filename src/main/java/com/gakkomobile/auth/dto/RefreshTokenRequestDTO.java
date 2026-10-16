@@ -2,7 +2,7 @@ package com.gakkomobile.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record LogoutRequest(
+public record RefreshTokenRequestDTO(
         @NotBlank(message = "Refresh token is required")
         String refreshToken
 ) {

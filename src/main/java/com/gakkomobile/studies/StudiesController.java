@@ -1,6 +1,6 @@
 package com.gakkomobile.studies;
 
-import com.gakkomobile.studies.dto.StudiesResponse;
+import com.gakkomobile.studies.dto.StudiesResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +16,7 @@ public class StudiesController {
     private final StudiesService studiesService;
 
     @GetMapping
-    public ResponseEntity<List<StudiesResponse>> getAll() {
+    public ResponseEntity<List<StudiesResponseDTO>> getAll() {
         return ResponseEntity.ok(studiesService.getAll());
     }
 }

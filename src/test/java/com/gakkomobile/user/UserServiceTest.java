@@ -1,7 +1,7 @@
 package com.gakkomobile.user;
 
 import com.gakkomobile.exception.ExceptionErrorConstants;
-import com.gakkomobile.user.dto.UserIdentifiersResponse;
+import com.gakkomobile.user.dto.UserIdentifiersResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,12 +44,12 @@ class UserServiceTest {
         when(userRepository.searchByFullNameOrIndex(searchQuery, pageable))
                 .thenReturn(List.of(student));
 
-        List<UserIdentifiersResponse> result = userService.searchUserIdentifiers(
+        List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.STUDENT, searchQuery, Role.STUDENT, pageNum, limit
         );
 
         assertThat(result).hasSize(1);
-        UserIdentifiersResponse response = result.get(0);
+        UserIdentifiersResponseDTO response = result.get(0);
         assertThat(response.email()).isEqualTo("danisa@gmail.com");
         assertThat(response.fullName()).isEqualTo("Novikova Danisa");
         assertThat(response.index()).isEqualTo("s12345");
@@ -74,7 +74,7 @@ class UserServiceTest {
         when(userRepository.searchByFullName(searchQuery, pageable))
                 .thenReturn(List.of(lecturer));
 
-        List<UserIdentifiersResponse> result = userService.searchUserIdentifiers(
+        List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.STUDENT, searchQuery, Role.LECTURER, pageNum, limit
         );
 
@@ -99,7 +99,7 @@ class UserServiceTest {
         when(userRepository.searchByFullName(searchQuery, pageable))
                 .thenReturn(List.of(employee));
 
-        List<UserIdentifiersResponse> result = userService.searchUserIdentifiers(
+        List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.ADMIN, searchQuery, Role.EMPLOYEE, pageNum, limit
         );
 
@@ -134,7 +134,7 @@ class UserServiceTest {
         when(userRepository.searchByFullNameOrIndex(searchQuery, pageable))
                 .thenReturn(Collections.emptyList());
 
-        List<UserIdentifiersResponse> result = userService.searchUserIdentifiers(
+        List<UserIdentifiersResponseDTO> result = userService.searchUserIdentifiers(
                 Role.STUDENT, searchQuery, Role.STUDENT, 0, 10
         );
 

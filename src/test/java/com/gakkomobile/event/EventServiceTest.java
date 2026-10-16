@@ -1,7 +1,7 @@
 package com.gakkomobile.event;
 
 import com.gakkomobile.building.BuildingEntity;
-import com.gakkomobile.event.dto.EventResponse;
+import com.gakkomobile.event.dto.EventResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -58,11 +58,11 @@ class EventServiceTest {
         when(eventRepository.findEventsByDate(startOfDay, endOfDay))
                 .thenReturn(List.of(event1, event2));
 
-        List<EventResponse> result = eventService.getEventsByDate(targetDate);
+        List<EventResponseDTO> result = eventService.getEventsByDate(targetDate);
 
         assertThat(result).hasSize(2);
 
-        EventResponse response1 = result.get(0);
+        EventResponseDTO response1 = result.get(0);
         assertThat(response1.id()).isEqualTo(event1.getId());
         assertThat(response1.organizator()).isEqualTo("Career Services");
         assertThat(response1.description()).isEqualTo("Tech Industry Resume Workshop");
@@ -71,7 +71,7 @@ class EventServiceTest {
         assertThat(response1.startTime()).isEqualTo("16:00");
         assertThat(response1.endTime()).isEqualTo("18:00");
 
-        EventResponse response2 = result.get(1);
+        EventResponseDTO response2 = result.get(1);
         assertThat(response2.id()).isEqualTo(event2.getId());
         assertThat(response2.organizator()).isEqualTo("Student Board");
         assertThat(response2.startTime()).isEqualTo("19:30");
@@ -89,7 +89,7 @@ class EventServiceTest {
         when(eventRepository.findEventsByDate(startOfDay, endOfDay))
                 .thenReturn(Collections.emptyList());
 
-        List<EventResponse> result = eventService.getEventsByDate(targetDate);
+        List<EventResponseDTO> result = eventService.getEventsByDate(targetDate);
 
         assertThat(result).isEmpty();
         verify(eventRepository).findEventsByDate(startOfDay, endOfDay);

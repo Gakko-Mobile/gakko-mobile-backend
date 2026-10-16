@@ -2,7 +2,7 @@ package com.gakkomobile.groupclass.dto;
 
 import java.util.Set;
 
-public record GroupClassResponse(
+public record GroupClassResponseDTO(
         int regularStudentsNum,
         int itnStudentsNum,
         String subjectName,

@@ -8,7 +8,7 @@ import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
 import com.gakkomobile.user.exception.UserNotFoundException;
 import com.gakkomobile.groupmembership.GroupMembershipEntity;
-import com.gakkomobile.groupclass.dto.GroupClassResponse;
+import com.gakkomobile.groupclass.dto.GroupClassResponseDTO;
 import com.gakkomobile.room.RoomEntity;
 import com.gakkomobile.subject.SubjectEntity;
 import com.gakkomobile.user.Role;
@@ -32,7 +32,7 @@ public class GroupClassService {
     private final UserRepository userRepository;
     private final AcademicGroupRepository academicGroupRepository;
 
-    public List<GroupClassResponse> getDailySchedule(
+    public List<GroupClassResponseDTO> getDailySchedule(
             ScheduleFilterOption filterOption,
             String userEmail,
             UUID groupId,
@@ -81,7 +81,7 @@ public class GroupClassService {
                 .toList();
     }
 
-    private GroupClassResponse convertGroupClassToResponse(
+    private GroupClassResponseDTO convertGroupClassToResponse(
             GroupClassEntity groupClass,
             DateTimeFormatter timeFormatter
     ) {
@@ -121,7 +121,7 @@ public class GroupClassService {
         OffsetDateTime classStartTimestamp = groupClass.getStartTimestamp();
         OffsetDateTime classEndTimestamp = groupClass.getEndTimestamp();
 
-        return new GroupClassResponse(
+        return new GroupClassResponseDTO(
                 regularStudentsNum,
                 itnStudentsNum,
                 subject.getName(),

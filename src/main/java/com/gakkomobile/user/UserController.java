@@ -1,6 +1,6 @@
 package com.gakkomobile.user;
 
-import com.gakkomobile.user.dto.UserIdentifiersResponse;
+import com.gakkomobile.user.dto.UserIdentifiersResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,14 +18,14 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/identifiers")
-    public ResponseEntity<List<UserIdentifiersResponse>> searchUserIdentifiers(
+    public ResponseEntity<List<UserIdentifiersResponseDTO>> searchUserIdentifiers(
             @AuthenticationPrincipal UserEntity user,
             @RequestParam(name = "name-or-index-search") String nameIndexSearch,
             @RequestParam(name = "role") Role selectedRole,
             @RequestParam(name = "page", defaultValue = "0") Integer pageNum,
             @RequestParam(name = "limit", defaultValue = "5") Integer limit
     ) {
-        List<UserIdentifiersResponse> responseBody = userService.searchUserIdentifiers(
+        List<UserIdentifiersResponseDTO> responseBody = userService.searchUserIdentifiers(
                 user.getRole(),
                 nameIndexSearch,
                 selectedRole,

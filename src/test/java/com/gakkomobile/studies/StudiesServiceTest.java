@@ -1,6 +1,6 @@
 package com.gakkomobile.studies;
 
-import com.gakkomobile.studies.dto.StudiesResponse;
+import com.gakkomobile.studies.dto.StudiesResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,15 +36,15 @@ class StudiesServiceTest {
 
         when(studiesRepository.findAll()).thenReturn(List.of(study1, study2));
 
-        List<StudiesResponse> result = studiesService.getAll();
+        List<StudiesResponseDTO> result = studiesService.getAll();
 
         assertThat(result).hasSize(2);
 
-        StudiesResponse response1 = result.get(0);
+        StudiesResponseDTO response1 = result.get(0);
         assertThat(response1.id()).isEqualTo(study1.getId());
         assertThat(response1.name()).isEqualTo(study1.getName());
 
-        StudiesResponse response2 = result.get(1);
+        StudiesResponseDTO response2 = result.get(1);
         assertThat(response2.id()).isEqualTo(study2.getId());
         assertThat(response2.name()).isEqualTo(study2.getName());
 
@@ -55,7 +55,7 @@ class StudiesServiceTest {
     void getAll_ShouldReturnEmptyList_WhenNoStudiesExist() {
         when(studiesRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<StudiesResponse> result = studiesService.getAll();
+        List<StudiesResponseDTO> result = studiesService.getAll();
 
         assertThat(result).isEmpty();
         verify(studiesRepository).findAll();

@@ -1,6 +1,6 @@
 package com.gakkomobile.studies;
 
-import com.gakkomobile.studies.dto.StudiesResponse;
+import com.gakkomobile.studies.dto.StudiesResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +11,11 @@ import java.util.List;
 public class StudiesService {
     private final StudiesRepository studiesRepository;
 
-    public List<StudiesResponse> getAll() {
+    public List<StudiesResponseDTO> getAll() {
         return studiesRepository
                 .findAll()
                 .stream()
-                .map(s -> new StudiesResponse(
+                .map(s -> new StudiesResponseDTO(
                         s.getId(),
                         s.getName()
                 )).toList();

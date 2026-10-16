@@ -1,7 +1,7 @@
 package com.gakkomobile.user;
 
 import com.gakkomobile.exception.ExceptionErrorConstants;
-import com.gakkomobile.user.dto.UserIdentifiersResponse;
+import com.gakkomobile.user.dto.UserIdentifiersResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +16,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    public List<UserIdentifiersResponse> searchUserIdentifiers(
+    public List<UserIdentifiersResponseDTO> searchUserIdentifiers(
             Role userRole,
             String nameIndexSearch,
             Role selectedRole,
@@ -41,7 +41,7 @@ public class UserService {
         };
 
         return users.stream()
-                .map(u -> new UserIdentifiersResponse(
+                .map(u -> new UserIdentifiersResponseDTO(
                         u.getEmail(),
                         String.format("%s %s", u.getLastName(), u.getFirstName()),
                         u.getIndexNumber()

@@ -1,6 +1,6 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.groupclass.dto.GroupClassResponse;
+import com.gakkomobile.groupclass.dto.GroupClassResponseDTO;
 import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,13 +21,13 @@ public class GroupClassController {
     private final GroupClassService groupClassService;
 
     @GetMapping("/day")
-    public ResponseEntity<List<GroupClassResponse>> getDailySchedule(
+    public ResponseEntity<List<GroupClassResponseDTO>> getDailySchedule(
             @RequestParam(name = "filter-option") ScheduleFilterOption filterOption,
             @RequestParam(name = "user-email", required = false) String userEmail,
             @RequestParam(name = "group-id", required = false) UUID groupId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        List<GroupClassResponse> responseBody = groupClassService.getDailySchedule(
+        List<GroupClassResponseDTO> responseBody = groupClassService.getDailySchedule(
                 filterOption,
                 userEmail,
                 groupId,

@@ -1,9 +1,9 @@
 package com.gakkomobile.auth;
 
-import com.gakkomobile.auth.dto.AuthResponse;
-import com.gakkomobile.auth.dto.LoginRequest;
-import com.gakkomobile.auth.dto.RefreshTokenRequest;
-import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.auth.dto.AuthResponseDTO;
+import com.gakkomobile.auth.dto.LoginRequestDTO;
+import com.gakkomobile.auth.dto.RefreshTokenRequestDTO;
+import com.gakkomobile.auth.dto.RegisterRequestDTO;
 import com.gakkomobile.exception.InvalidRefreshTokenException;
 import com.gakkomobile.user.exception.UserAlreadyExistsException;
 import com.gakkomobile.security.jwt.JwtService;
@@ -59,7 +59,7 @@ class AuthServiceTest {
 
     @Test
     void register_ShouldReturnAuthResponse_WhenValidRequest() {
-        RegisterRequest request = new RegisterRequest(
+        RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", "s12345", "12345678901", email, "Password123!"
         );
 
@@ -70,7 +70,7 @@ class AuthServiceTest {
         when(jwtService.generateAccessToken(any(UserEntity.class))).thenReturn(accessToken);
         when(jwtService.generateRefreshToken(any(UserEntity.class))).thenReturn(refreshToken);
 
-        AuthResponse response = authService.register(request);
+        AuthResponseDTO response = authService.register(request);
 
         assertNotNull(response);
         assertEquals(accessToken, response.accessToken());
@@ -83,7 +83,7 @@ class AuthServiceTest {
 
     @Test
     void register_ShouldThrowException_WhenEmailAlreadyExists() {
-        RegisterRequest request = new RegisterRequest(
+        RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", null, null, email, "Password123!"
         );
 
@@ -95,7 +95,7 @@ class AuthServiceTest {
 
     @Test
     void register_ShouldThrowException_WhenIndexNumberAlreadyExists() {
-        RegisterRequest request = new RegisterRequest(
+        RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", "s12345", null, email, "Password123!"
         );
 
@@ -108,7 +108,7 @@ class AuthServiceTest {
 
     @Test
     void register_ShouldThrowException_WhenPeselAlreadyExists() {
-        RegisterRequest request = new RegisterRequest(
+        RegisterRequestDTO request = new RegisterRequestDTO(
                 "John", "Doe", null, "12345678901", email, "Password123!"
         );
 
@@ -122,7 +122,7 @@ class AuthServiceTest {
 
     @Test
     void login_ShouldReturnAuthResponseAndBlacklistOldToken() {
-        LoginRequest request = new LoginRequest(email, "Password123!");
+        LoginRequestDTO request = new LoginRequestDTO(email, "Password123!");
         Date mockExpiration = new Date(System.currentTimeMillis() + 10000);
 
         when(repository.findByEmail(email)).thenReturn(Optional.of(testUser));
@@ -130,7 +130,7 @@ class AuthServiceTest {
         when(jwtService.generateRefreshToken(testUser)).thenReturn(refreshToken);
         when(jwtService.extractExpiration("old.refresh.jwt.token")).thenReturn(mockExpiration);
 
-        AuthResponse response = authService.login(request);
+        AuthResponseDTO response = authService.login(request);
 
         verify(authenticationManager).authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
@@ -149,7 +149,7 @@ class AuthServiceTest {
 
     @Test
     void login_ShouldNotCrash_WhenOldTokenIsAlreadyExpired() {
-        LoginRequest request = new LoginRequest(email, "Password123!");
+        LoginRequestDTO request = new LoginRequestDTO(email, "Password123!");
 
         when(repository.findByEmail(email)).thenReturn(Optional.of(testUser));
         when(jwtService.generateAccessToken(testUser)).thenReturn(accessToken);
@@ -158,7 +158,7 @@ class AuthServiceTest {
         when(jwtService.extractExpiration("old.refresh.jwt.token"))
                 .thenThrow(new ExpiredJwtException(null, null, "Expired"));
 
-        AuthResponse response = authService.login(request);
+        AuthResponseDTO response = authService.login(request);
 
         assertNotNull(response);
         verify(blacklistedTokenRepository, never()).save(any(BlacklistedToken.class));
@@ -167,7 +167,7 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldReturnNewTokens_WhenValid() {
-        RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         testUser.setRefreshToken(refreshToken);
 
         when(blacklistedTokenRepository.existsById(refreshToken)).thenReturn(false);
@@ -176,7 +176,7 @@ class AuthServiceTest {
         when(jwtService.isTokenValid(refreshToken, testUser)).thenReturn(true);
         when(jwtService.generateAccessToken(testUser)).thenReturn("new.access.token");
 
-        AuthResponse response = authService.refreshToken(request);
+        AuthResponseDTO response = authService.refreshToken(request);
 
         assertNotNull(response);
         assertEquals("new.access.token", response.accessToken());
@@ -185,7 +185,7 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldThrowException_WhenTokenIsBlacklisted() {
-        RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         when(blacklistedTokenRepository.existsById(refreshToken)).thenReturn(true);
 
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refreshToken(request));
@@ -193,7 +193,7 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldThrowException_WhenTokenDoesNotMatchDatabase() {
-        RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         testUser.setRefreshToken("different.token.in.db");
 
         when(blacklistedTokenRepository.existsById(refreshToken)).thenReturn(false);
@@ -205,7 +205,7 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldThrowException_WhenExtractedEmailIsNull() {
-        RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
 
         when(blacklistedTokenRepository.existsById(refreshToken)).thenReturn(false);
         when(jwtService.extractUsername(refreshToken)).thenReturn(null);
@@ -217,7 +217,7 @@ class AuthServiceTest {
 
     @Test
     void refreshToken_ShouldThrowException_WhenTokenIsInvalid() {
-        RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+        RefreshTokenRequestDTO request = new RefreshTokenRequestDTO(refreshToken);
         testUser.setRefreshToken(refreshToken);
 
         when(blacklistedTokenRepository.existsById(refreshToken)).thenReturn(false);

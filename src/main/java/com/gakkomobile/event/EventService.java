@@ -1,6 +1,6 @@
 package com.gakkomobile.event;
 
-import com.gakkomobile.event.dto.EventResponse;
+import com.gakkomobile.event.dto.EventResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +17,14 @@ public class EventService {
 
     private final EventRepository eventRepository;
 
-    public List<EventResponse> getEventsByDate(LocalDate date) {
+    public List<EventResponseDTO> getEventsByDate(LocalDate date) {
         OffsetDateTime startOfDay = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
 
         List<EventEntity> events = eventRepository.findEventsByDate(startOfDay, endOfDay);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        return events.stream().map(event -> new EventResponse(
+        return events.stream().map(event -> new EventResponseDTO(
                 event.getId(),
                 event.getOrganizator(),
                 event.getDescription(),

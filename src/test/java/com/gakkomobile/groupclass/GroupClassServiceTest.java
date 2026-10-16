@@ -5,7 +5,7 @@ import com.gakkomobile.academicgroup.AcademicGroupRepository;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
 import com.gakkomobile.building.BuildingEntity;
 import com.gakkomobile.exception.BadSearchParamsException;
-import com.gakkomobile.groupclass.dto.GroupClassResponse;
+import com.gakkomobile.groupclass.dto.GroupClassResponseDTO;
 import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
 import com.gakkomobile.groupmembership.GroupMembershipEntity;
 import com.gakkomobile.room.RoomEntity;
@@ -57,7 +57,7 @@ class GroupClassServiceTest {
         when(groupClassRepository.findClassesByUserEmailAndDate(email, startOfDay, endOfDay))
                 .thenReturn(List.of(createMockGroupClass()));
 
-        List<GroupClassResponse> result = groupClassService.getDailySchedule(
+        List<GroupClassResponseDTO> result = groupClassService.getDailySchedule(
                 ScheduleFilterOption.INDIVIDUAL, email, null, date
         );
 
@@ -103,7 +103,7 @@ class GroupClassServiceTest {
         when(groupClassRepository.findClassesByGroupIdAndDate(groupId, startOfDay, endOfDay))
                 .thenReturn(List.of(createMockGroupClass()));
 
-        List<GroupClassResponse> result = groupClassService.getDailySchedule(
+        List<GroupClassResponseDTO> result = groupClassService.getDailySchedule(
                 ScheduleFilterOption.GROUP, null, groupId, date
         );
 
@@ -137,7 +137,7 @@ class GroupClassServiceTest {
         verifyNoInteractions(groupClassRepository);
     }
 
-    private void verifyMappingLogic(GroupClassResponse response) {
+    private void verifyMappingLogic(GroupClassResponseDTO response) {
         assertThat(response.regularStudentsNum()).isEqualTo(1);
         assertThat(response.itnStudentsNum()).isEqualTo(1);
         assertThat(response.lecturers()).containsExactly("Kowalski Jan");

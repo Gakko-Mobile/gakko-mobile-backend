@@ -1,6 +1,6 @@
 package com.gakkomobile.event;
 
-import com.gakkomobile.event.dto.EventResponse;
+import com.gakkomobile.event.dto.EventResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +20,10 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/day")
-    public ResponseEntity<List<EventResponse>> getEventsByDate(
+    public ResponseEntity<List<EventResponseDTO>> getEventsByDate(
             @RequestParam(name = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        List<EventResponse> responseBody = eventService.getEventsByDate(date);
+        List<EventResponseDTO> responseBody = eventService.getEventsByDate(date);
         return ResponseEntity.ok(responseBody);
     }
 }

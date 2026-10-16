@@ -1,6 +1,6 @@
 package com.gakkomobile.academicgroup;
 
-import com.gakkomobile.academicgroup.dto.AcademicGroupIdentifiersResponse;
+import com.gakkomobile.academicgroup.dto.AcademicGroupIdentifiersResponseDTO;
 import com.gakkomobile.studies.StudiesEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,17 +49,17 @@ class AcademicGroupServiceTest {
         when(academicGroupRepository.findAllByStudies_NameAndAcademicYear(studiesName, academicYear))
                 .thenReturn(List.of(group1, group2));
 
-        List<AcademicGroupIdentifiersResponse> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
+        List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
 
         assertThat(result).hasSize(2);
 
-        AcademicGroupIdentifiersResponse response1 = result.get(0);
+        AcademicGroupIdentifiersResponseDTO response1 = result.get(0);
         assertThat(response1.id()).isEqualTo(group1.getId());
         assertThat(response1.studiesName()).isEqualTo(studiesName);
         assertThat(response1.academicYear()).isEqualTo(academicYear);
         assertThat(response1.name()).isEqualTo("WIs I.1");
 
-        AcademicGroupIdentifiersResponse response2 = result.get(1);
+        AcademicGroupIdentifiersResponseDTO response2 = result.get(1);
         assertThat(response2.id()).isEqualTo(group2.getId());
         assertThat(response2.name()).isEqualTo("WIs I.2");
 
@@ -74,7 +74,7 @@ class AcademicGroupServiceTest {
         when(academicGroupRepository.findAllByStudies_NameAndAcademicYear(studiesName, academicYear))
                 .thenReturn(Collections.emptyList());
 
-        List<AcademicGroupIdentifiersResponse> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
+        List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
 
         assertThat(result).isEmpty();
         verify(academicGroupRepository).findAllByStudies_NameAndAcademicYear(studiesName, academicYear);

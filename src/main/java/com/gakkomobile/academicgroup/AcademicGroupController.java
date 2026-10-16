@@ -1,6 +1,6 @@
 package com.gakkomobile.academicgroup;
 
-import com.gakkomobile.academicgroup.dto.AcademicGroupIdentifiersResponse;
+import com.gakkomobile.academicgroup.dto.AcademicGroupIdentifiersResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +17,11 @@ public class AcademicGroupController {
     private final AcademicGroupService academicGroupService;
 
     @GetMapping("/identifiers")
-    public ResponseEntity<List<AcademicGroupIdentifiersResponse>> searchGroupIdentifiers(
+    public ResponseEntity<List<AcademicGroupIdentifiersResponseDTO>> searchGroupIdentifiers(
             @RequestParam(name = "studies-name") String studiesName,
             @RequestParam(name = "academic-year") String academicYear
     ) {
-        List<AcademicGroupIdentifiersResponse> responseBody = academicGroupService.searchUserIdentifiers(
+        List<AcademicGroupIdentifiersResponseDTO> responseBody = academicGroupService.searchUserIdentifiers(
                 studiesName,
                 academicYear
         );

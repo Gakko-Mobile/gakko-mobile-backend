@@ -2,7 +2,7 @@ package com.gakkomobile.event.dto;
 
 import java.util.UUID;
 
-public record EventResponse(
+public record EventResponseDTO(
         UUID id,
         String organizator,
         String description,
