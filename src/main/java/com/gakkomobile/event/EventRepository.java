@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface EventRepository extends JpaRepository<EventEntity, UUID> {
+interface EventRepository extends JpaRepository<EventEntity, UUID> {
 
     @Query("""
         SELECT e FROM EventEntity e

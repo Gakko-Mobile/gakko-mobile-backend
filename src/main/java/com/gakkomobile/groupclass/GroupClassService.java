@@ -1,6 +1,6 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.AcademicGroupRepository;
+import com.gakkomobile.academicgroup.AcademicGroupService;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
 import com.gakkomobile.exception.BadSearchParamsException;
 import com.gakkomobile.exception.ExceptionErrorConstants;
@@ -25,7 +25,7 @@ public class GroupClassService {
 
     private final GroupClassRepository groupClassRepository;
     private final UserRepository userRepository;
-    private final AcademicGroupRepository academicGroupRepository;
+    private final AcademicGroupService academicGroupService;
     private final GroupClassMapper groupClassMapper;
 
     public List<GroupClassResponseDTO> getDailySchedule(
@@ -57,7 +57,7 @@ public class GroupClassService {
                         ExceptionErrorConstants.ACADEMIC_GROUP_NAME_NOT_PROVIDED
                 );
 
-                if (!academicGroupRepository.existsById(groupId)) {
+                if (!academicGroupService.existsById(groupId)) {
                     throw new AcademicGroupNotFoundException();
                 }
 

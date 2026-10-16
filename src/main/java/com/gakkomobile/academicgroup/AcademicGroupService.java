@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,5 +22,9 @@ public class AcademicGroupService {
                 .stream()
                 .map(academicGroupMapper::toDto)
                 .toList();
+    }
+
+    public boolean existsById(UUID id) {
+        return academicGroupRepository.existsById(id);
     }
 }

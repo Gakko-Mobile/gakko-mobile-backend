@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface GroupClassRepository extends JpaRepository<GroupClassEntity, UUID> {
+interface GroupClassRepository extends JpaRepository<GroupClassEntity, UUID> {
     @Query("""
         SELECT DISTINCT gc FROM GroupClassEntity gc
         JOIN gc.groups ag

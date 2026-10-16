@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
+    private final UserRepository repository;
     private final UserMapper userMapper;
 
     public List<UserIdentifiersResponseDTO> searchUserIdentifiers(
@@ -27,8 +27,8 @@ public class UserService {
         Pageable pageable = PageRequest.of(pageNum, limit);
 
         List<UserEntity> users = switch (selectedRole) {
-            case STUDENT -> userRepository.searchByFullNameOrIndex(nameIndexSearch, pageable);
-            case LECTURER -> userRepository.searchByFullName(nameIndexSearch, pageable);
+            case STUDENT -> repository.searchByFullNameOrIndex(nameIndexSearch, pageable);
+            case LECTURER -> repository.searchByFullName(nameIndexSearch, pageable);
             default -> {
                 if (!userRole.equals(Role.ADMIN)) {
                     throw new ResponseStatusException(
@@ -37,7 +37,7 @@ public class UserService {
                     );
                 }
 
-                yield userRepository.searchByFullName(nameIndexSearch, pageable);
+                yield repository.searchByFullName(nameIndexSearch, pageable);
             }
         };
 

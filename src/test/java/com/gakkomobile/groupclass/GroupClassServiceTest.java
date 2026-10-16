@@ -1,6 +1,6 @@
 package com.gakkomobile.groupclass;
 
-import com.gakkomobile.academicgroup.AcademicGroupRepository;
+import com.gakkomobile.academicgroup.AcademicGroupService;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
 import com.gakkomobile.exception.BadSearchParamsException;
 import com.gakkomobile.groupclass.dto.GroupClassResponseDTO;
@@ -33,7 +33,7 @@ class GroupClassServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private AcademicGroupRepository academicGroupRepository;
+    private AcademicGroupService academicGroupService;
     @Mock
     private GroupClassMapper groupClassMapper;
 
@@ -109,7 +109,7 @@ class GroupClassServiceTest {
         GroupClassEntity entity = new GroupClassEntity();
         GroupClassResponseDTO expectedDto = createMockDto();
 
-        when(academicGroupRepository.existsById(groupId)).thenReturn(true);
+        when(academicGroupService.existsById(groupId)).thenReturn(true);
         when(groupClassRepository.findClassesByGroupIdAndDate(groupId, startOfDay, endOfDay))
                 .thenReturn(List.of(entity));
         when(groupClassMapper.toDto(entity)).thenReturn(expectedDto);
@@ -137,7 +137,7 @@ class GroupClassServiceTest {
                 ScheduleFilterOption.GROUP, null, null, date))
                 .isInstanceOf(BadSearchParamsException.class);
 
-        verifyNoInteractions(academicGroupRepository, groupClassRepository, groupClassMapper);
+        verifyNoInteractions(academicGroupService, groupClassRepository, groupClassMapper);
     }
 
     @Test
@@ -146,7 +146,7 @@ class GroupClassServiceTest {
         LocalDate date = LocalDate.now();
         UUID groupId = UUID.randomUUID();
 
-        when(academicGroupRepository.existsById(groupId)).thenReturn(false);
+        when(academicGroupService.existsById(groupId)).thenReturn(false);
 
         // when and then
         assertThatThrownBy(() -> groupClassService.getDailySchedule(
