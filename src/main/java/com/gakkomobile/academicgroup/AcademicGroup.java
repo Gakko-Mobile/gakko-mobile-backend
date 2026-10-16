@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,7 +42,7 @@ public class AcademicGroup {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null) {
+        if (Objects.isNull(this.id)) {
             this.id = UuidCreator.getTimeOrderedEpoch();
         }
     }

@@ -9,6 +9,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -40,7 +41,7 @@ public class Subject {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null) {
+        if (Objects.isNull(this.id)) {
             this.id = UuidCreator.getTimeOrderedEpoch();
         }
     }

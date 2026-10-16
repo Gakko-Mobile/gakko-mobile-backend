@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,7 +54,7 @@ public class GroupClass {
 
     @PrePersist
     protected void onCreate() {
-        if (id == null) {
+        if (Objects.isNull(this.id)) {
             id = UuidCreator.getTimeOrderedEpoch();
         }
     }

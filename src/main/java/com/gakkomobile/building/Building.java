@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public class Building {
 
     @PrePersist
     protected void onCreate() {
-        if (id == null) {
+        if (Objects.isNull(this.id)) {
             id = UuidCreator.getTimeOrderedEpoch();
         }
     }

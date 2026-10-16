@@ -73,11 +73,11 @@ public class User implements UserDetails {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null) {
+        if (Objects.isNull(this.id)) {
             this.id = UuidCreator.getTimeOrderedEpoch();
         }
 
-        if (this.passwordChangedAt == null) {
+        if (Objects.isNull(this.passwordChangedAt)) {
             this.passwordChangedAt = OffsetDateTime.now();
         }
     }

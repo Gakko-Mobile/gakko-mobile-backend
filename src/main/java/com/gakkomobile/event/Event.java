@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -42,7 +43,7 @@ public class Event {
 
     @PrePersist
     protected void onCreate() {
-        if (id == null) {
+        if (Objects.isNull(this.id)) {
             id = UuidCreator.getTimeOrderedEpoch();
         }
     }
