@@ -1,18 +1,18 @@
 package com.gakkomobile.auth;
 
-import com.gakkomobile.auth.dto.AuthResponse;
-import com.gakkomobile.auth.dto.LoginRequest;
-import com.gakkomobile.auth.dto.RefreshTokenRequest;
-import com.gakkomobile.auth.dto.RegisterRequest;
+import com.gakkomobile.auth.dto.AuthResponseDTO;
+import com.gakkomobile.auth.dto.LoginRequestDTO;
+import com.gakkomobile.auth.dto.RefreshTokenRequestDTO;
+import com.gakkomobile.auth.dto.RegisterRequestDTO;
 import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.exception.InvalidRefreshTokenException;
-import com.gakkomobile.exception.UserAlreadyExistsException;
-import com.gakkomobile.exception.UserNotFoundException;
+import com.gakkomobile.user.exception.UserAlreadyExistsException;
+import com.gakkomobile.user.exception.UserNotFoundException;
 import com.gakkomobile.security.jwt.JwtService;
 import com.gakkomobile.security.token.BlacklistedToken;
 import com.gakkomobile.security.token.BlacklistedTokenRepository;
 import com.gakkomobile.user.Role;
-import com.gakkomobile.user.User;
+import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
@@ -47,7 +47,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponseDTO register(RegisterRequestDTO request) {
         String email = request.email();
         String indexNumber = request.indexNumber();
         String pesel = request.pesel();
@@ -74,7 +74,7 @@ public class AuthService {
 
         String passwordHash = passwordEncoder.encode(request.password());
 
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(email);
@@ -91,15 +91,15 @@ public class AuthService {
 
         repository.save(user);
 
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponseDTO(accessToken, refreshToken);
     }
 
     @Transactional
-    public AuthResponse login(LoginRequest request) {
+    public AuthResponseDTO login(LoginRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        User user = repository.findByEmail(request.email())
+        UserEntity user = repository.findByEmail(request.email())
                 .orElseThrow(UserNotFoundException::new);
 
         String accessToken = jwtService.generateAccessToken(user);
@@ -112,7 +112,7 @@ public class AuthService {
             blacklistedTokenRepository.save(
                     new BlacklistedToken(oldRefreshToken, oldTokenExpiration)
             );
-        } catch (JwtException e) {
+        } catch (JwtException | IllegalArgumentException e) {
             log.info(e.getMessage());
         }
 
@@ -120,11 +120,11 @@ public class AuthService {
 
         repository.save(user);
 
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponseDTO(accessToken, refreshToken);
     }
 
     @Transactional
-    public AuthResponse refreshToken(RefreshTokenRequest request) {
+    public AuthResponseDTO refreshToken(RefreshTokenRequestDTO request) {
         String refreshTokenFromRequest = request.refreshToken();
 
         if (blacklistedTokenRepository.existsById(refreshTokenFromRequest)) {
@@ -133,7 +133,7 @@ public class AuthService {
 
         String userEmail = jwtService.extractUsername(refreshTokenFromRequest);
         if (!Objects.isNull(userEmail)) {
-            User user = repository.findByEmail(userEmail)
+            UserEntity user = repository.findByEmail(userEmail)
                     .orElseThrow(UserNotFoundException::new);
 
             String actualRefreshToken = user.getRefreshToken();
@@ -143,7 +143,7 @@ public class AuthService {
 
             if (jwtService.isTokenValid(refreshTokenFromRequest, user)) {
                 String accessToken = jwtService.generateAccessToken(user);
-                return new AuthResponse(accessToken, refreshTokenFromRequest);
+                return new AuthResponseDTO(accessToken, refreshTokenFromRequest);
             }
         }
         throw new InvalidRefreshTokenException(ExceptionErrorConstants.INVALID_REFRESH_TOKEN);
