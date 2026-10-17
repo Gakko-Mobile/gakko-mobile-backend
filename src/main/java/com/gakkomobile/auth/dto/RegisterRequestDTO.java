@@ -2,7 +2,7 @@ package com.gakkomobile.auth.dto;
 
 import jakarta.validation.constraints.*;
 
-public record RegisterRequest(
+public record RegisterRequestDTO(
         @NotBlank
         @Size(max = 100)
         String firstName,

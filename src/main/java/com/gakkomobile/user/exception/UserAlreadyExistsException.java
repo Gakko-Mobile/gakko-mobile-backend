@@ -1,4 +1,4 @@
-package com.gakkomobile.exception;
+package com.gakkomobile.user.exception;
 
 public class UserAlreadyExistsException extends RuntimeException {
     public UserAlreadyExistsException(String message) {
