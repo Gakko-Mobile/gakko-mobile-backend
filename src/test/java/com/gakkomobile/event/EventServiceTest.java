@@ -1,0 +1,122 @@
+package com.gakkomobile.event;
+
+import com.gakkomobile.building.BuildingEntity;
+import com.gakkomobile.event.dto.EventResponseDTO;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class EventServiceTest {
+
+    @Mock
+    private EventRepository eventRepository;
+
+    @Mock
+    private EventMapper eventMapper;
+
+    @InjectMocks
+    private EventService eventService;
+
+    @Test
+    void getEventsByDate_ShouldReturnMappedResponses_WhenEventsFound() {
+        // given
+        LocalDate targetDate = LocalDate.of(2026, 10, 3);
+        OffsetDateTime startOfDay = targetDate.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
+        OffsetDateTime endOfDay = startOfDay.plusDays(1);
+
+        BuildingEntity building = new BuildingEntity();
+        building.setId(UUID.randomUUID());
+        building.setName("Main Campus Building");
+
+        EventEntity event1 = new EventEntity();
+        event1.setId(UUID.randomUUID());
+        event1.setOrganizator("Career Services");
+        event1.setDescription("Tech Industry Resume Workshop");
+        event1.setBuilding(building);
+        event1.setStartTimestamp(OffsetDateTime.of(2026, 10, 3, 16, 0, 0, 0, ZoneOffset.UTC));
+        event1.setEndTimestamp(OffsetDateTime.of(2026, 10, 3, 18, 0, 0, 0, ZoneOffset.UTC));
+
+        EventEntity event2 = new EventEntity();
+        event2.setId(UUID.randomUUID());
+        event2.setOrganizator("Student Board");
+        event2.setDescription("Welcome Semester Integration Party");
+        event2.setBuilding(building);
+        event2.setStartTimestamp(OffsetDateTime.of(2026, 10, 3, 19, 30, 0, 0, ZoneOffset.UTC));
+        event2.setEndTimestamp(OffsetDateTime.of(2026, 10, 3, 23, 45, 0, 0, ZoneOffset.UTC));
+
+        EventResponseDTO dto1 = new EventResponseDTO(
+                event1.getId(), "Career Services", "Tech Industry Resume Workshop",
+                "Main Campus Building", "2026-10-03", "16:00", "18:00"
+        );
+
+        EventResponseDTO dto2 = new EventResponseDTO(
+                event2.getId(), "Student Board", "Welcome Semester Integration Party",
+                "Main Campus Building", "2026-10-03", "19:30", "23:45"
+        );
+
+        when(eventRepository.findEventsByDate(startOfDay, endOfDay))
+                .thenReturn(List.of(event1, event2));
+        when(eventMapper.toDto(event1)).thenReturn(dto1);
+        when(eventMapper.toDto(event2)).thenReturn(dto2);
+
+        // when
+        List<EventResponseDTO> result = eventService.getEventsByDate(targetDate);
+
+        // then
+        assertThat(result).hasSize(2);
+
+        EventResponseDTO response1 = result.get(0);
+        assertThat(response1.id()).isEqualTo(event1.getId());
+        assertThat(response1.organizator()).isEqualTo("Career Services");
+        assertThat(response1.description()).isEqualTo("Tech Industry Resume Workshop");
+        assertThat(response1.buildingName()).isEqualTo("Main Campus Building");
+        assertThat(response1.eventDate()).isEqualTo("2026-10-03");
+        assertThat(response1.startTime()).isEqualTo("16:00");
+        assertThat(response1.endTime()).isEqualTo("18:00");
+
+        EventResponseDTO response2 = result.get(1);
+        assertThat(response2.id()).isEqualTo(event2.getId());
+        assertThat(response2.organizator()).isEqualTo("Student Board");
+        assertThat(response2.startTime()).isEqualTo("19:30");
+        assertThat(response2.endTime()).isEqualTo("23:45");
+
+        verify(eventRepository).findEventsByDate(startOfDay, endOfDay);
+        verify(eventMapper).toDto(event1);
+        verify(eventMapper).toDto(event2);
+    }
+
+    @Test
+    void getEventsByDate_ShouldReturnEmptyList_WhenNoEventsFound() {
+        // given
+        LocalDate targetDate = LocalDate.of(2026, 10, 4);
+        OffsetDateTime startOfDay = targetDate.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC);
+        OffsetDateTime endOfDay = startOfDay.plusDays(1);
+
+        when(eventRepository.findEventsByDate(startOfDay, endOfDay))
+                .thenReturn(Collections.emptyList());
+
+        // when
+        List<EventResponseDTO> result = eventService.getEventsByDate(targetDate);
+
+        // then
+        assertThat(result).isEmpty();
+        verify(eventRepository).findEventsByDate(startOfDay, endOfDay);
+        verifyNoInteractions(eventMapper);
+    }
+}

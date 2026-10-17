@@ -14,19 +14,19 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
-            @Valid @RequestBody LogoutRequest request
+            @Valid @RequestBody LogoutRequestDTO request
     ) {
         if (!authService.logout(authHeader, request.refreshToken())) {
             return ResponseEntity.badRequest().body("No token provided");
@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<AuthResponseDTO> refreshToken(@Valid @RequestBody RefreshTokenRequestDTO request) {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
 }

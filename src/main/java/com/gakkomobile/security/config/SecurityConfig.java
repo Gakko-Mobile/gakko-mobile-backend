@@ -1,6 +1,7 @@
 package com.gakkomobile.security.config;
 
 import com.gakkomobile.security.jwt.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -34,12 +35,20 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/api/v1/test-notifications", //FIXME: remove this after test
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh"
                         ).permitAll()
-                        .requestMatchers("/error")
+                        .requestMatchers(
+                                "/users/identifiers",
+                                "/group-classes/day",
+                                "/academic-groups/indetifiers",
+                                "/studies"
+                        ).hasAnyAuthority("STUDENT", "EMPLOYEE", "ADMIN", "LECTURER")
+                        .requestMatchers(
+                                "/error",
+                                "/events/day"
+                        )
                         .permitAll()
                         .anyRequest()
                         .authenticated()

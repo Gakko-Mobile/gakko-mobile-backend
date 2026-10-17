@@ -1,5 +1,6 @@
 package com.gakkomobile.user;
 
+import com.gakkomobile.groupmembership.GroupMembershipEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,17 +16,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
-public class User implements UserDetails {
-
+public class UserEntity implements UserDetails {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
@@ -68,23 +66,27 @@ public class User implements UserDetails {
     @Column(name = "password_changed_at", nullable = false)
     private OffsetDateTime passwordChangedAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<GroupMembershipEntity> groupMemberships = new HashSet<>();
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null) {
+        if (Objects.isNull(this.id)) {
             this.id = UuidCreator.getTimeOrderedEpoch();
         }
-        if (this.passwordChangedAt == null) {
+
+        if (Objects.isNull(this.passwordChangedAt)) {
             this.passwordChangedAt = OffsetDateTime.now();
         }
     }
 
     @Override
     public @NullMarked Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
@@ -95,25 +97,5 @@ public class User implements UserDetails {
     @Override
     public @NullMarked String getUsername() {
         return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }

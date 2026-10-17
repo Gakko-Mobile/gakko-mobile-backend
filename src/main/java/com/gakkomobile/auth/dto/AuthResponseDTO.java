@@ -1,6 +1,6 @@
 package com.gakkomobile.auth.dto;
 
-public record AuthResponse(
+public record AuthResponseDTO(
         String accessToken,
         String refreshToken
 ) {}
