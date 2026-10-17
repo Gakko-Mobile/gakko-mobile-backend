@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/academic-groups")
+@RequestMapping("api/v1/academic-groups")
 @RequiredArgsConstructor
 public class AcademicGroupController {
     private final AcademicGroupService academicGroupService;
