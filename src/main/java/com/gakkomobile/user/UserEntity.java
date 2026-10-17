@@ -4,6 +4,7 @@ import com.gakkomobile.groupmembership.GroupMembershipEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -15,12 +16,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
+@NoArgsConstructor
 public class UserEntity implements UserDetails {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
@@ -63,7 +70,7 @@ public class UserEntity implements UserDetails {
 
     @Column(name = "password_changed_at", nullable = false)
     private OffsetDateTime passwordChangedAt;
-    
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GroupMembershipEntity> groupMemberships = new HashSet<>();
 

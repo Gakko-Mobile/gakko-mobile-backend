@@ -4,6 +4,7 @@ import com.gakkomobile.auth.dto.AuthResponseDTO;
 import com.gakkomobile.auth.dto.LoginRequestDTO;
 import com.gakkomobile.auth.dto.RefreshTokenRequestDTO;
 import com.gakkomobile.auth.dto.RegisterRequestDTO;
+import com.gakkomobile.auth.dto.UserCreatedEvent;
 import com.gakkomobile.exception.InvalidRefreshTokenException;
 import com.gakkomobile.user.exception.UserAlreadyExistsException;
 import com.gakkomobile.security.jwt.JwtService;
@@ -20,12 +21,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +42,7 @@ class AuthServiceTest {
     @Mock private JwtService jwtService;
     @Mock private AuthenticationManager authenticationManager;
     @Mock private BlacklistedTokenRepository blacklistedTokenRepository;
+    @Mock private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private AuthService authService;
@@ -81,6 +85,7 @@ class AuthServiceTest {
 
         ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
         verify(repository).save(userCaptor.capture());
+        verify(eventPublisher).publishEvent(new UserCreatedEvent(testUser.getId()));
         assertEquals(refreshToken, userCaptor.getValue().getRefreshToken());
     }
 

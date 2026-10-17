@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "NotificationEventAvro",
+  "namespace": "com.gakkomobile.avro",
+  "doc": "Notification event schema",
+  "fields": [
+    { "name": "eventId", "type": "string" },
+    { "name": "aggregateId", "type": "string" },
+    { "name": "aggregateType", "type": "string" },
+    { "name": "eventType", "type": "string" },
+    { "name": "targetType", "type": "string" },
+    { "name": "targetId", "type": ["null", "string"], "default": null },
+    { "name": "title", "type": "string" },
+    { "name": "body", "type": "string" },
+    { "name": "category", "type": "string" },
+    { "name": "targetScreen", "type": ["null", "string"], "default": null }
+  ]
+}

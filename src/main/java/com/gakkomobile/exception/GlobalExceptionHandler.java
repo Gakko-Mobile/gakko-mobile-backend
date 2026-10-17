@@ -3,6 +3,7 @@ package com.gakkomobile.exception;
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
 import com.gakkomobile.user.exception.UserAlreadyExistsException;
 import com.gakkomobile.user.exception.UserNotFoundException;
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +88,17 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                ExceptionErrorConstants.SOMETHING_WENT_WRONG_WITH_AUTH,
                 LocalDateTime.now(),
                 null
         );

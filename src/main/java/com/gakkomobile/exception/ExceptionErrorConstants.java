@@ -10,4 +10,5 @@ public class ExceptionErrorConstants {
     public static String EMAIL_NOT_PROVIDED = "User email not provided.";
     public static String ACADEMIC_GROUP_NAME_NOT_PROVIDED = "Group name not provided.";
     public static String FORBIDDEN = "Action forbidden.";
+    public static String SOMETHING_WENT_WRONG_WITH_AUTH = "Something went wrong with authentication.";
 }
