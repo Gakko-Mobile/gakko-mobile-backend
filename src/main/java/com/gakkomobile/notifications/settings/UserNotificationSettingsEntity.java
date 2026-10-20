@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.time.Instant;
@@ -20,7 +19,6 @@ import java.util.UUID;
 class UserNotificationSettingsEntity {
 
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     private UUID userId;
 
     @Enumerated(EnumType.STRING)

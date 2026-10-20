@@ -1,7 +1,7 @@
-package com.gakkomobile.notifications.firebase;
+package com.gakkomobile.notifications.push;
 
-import com.gakkomobile.notifications.firebase.dto.UserDeviceTokenRegisterRequestDTO;
-import com.gakkomobile.notifications.firebase.dto.UserDeviceTokenResponseDTO;
+import com.gakkomobile.notifications.push.dto.UserDeviceTokenRegisterRequestDTO;
+import com.gakkomobile.notifications.push.dto.UserDeviceTokenResponseDTO;
 import com.gakkomobile.user.UserEntity;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

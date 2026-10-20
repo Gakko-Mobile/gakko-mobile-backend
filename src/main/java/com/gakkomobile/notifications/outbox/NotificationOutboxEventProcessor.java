@@ -28,8 +28,8 @@ public class NotificationOutboxEventProcessor {
     @Scheduled(fixedDelay = 1000) // 1 second
     @Transactional
     public void processOutboxNotifications() {
-        List<NotificationOutboxEventEntity> unprocessedEvents = outboxRepository.findTop50ByProcessedFalseOrderByCreatedAtAsc();
 
+        List<NotificationOutboxEventEntity> unprocessedEvents = outboxRepository.findTop50ByProcessedFalseOrderByCreatedAtAsc();
         for (NotificationOutboxEventEntity event : unprocessedEvents) {
             try {
                 NotificationEventAvro notificationEvent = notificationOutboxMapper.entityToAvro(event);

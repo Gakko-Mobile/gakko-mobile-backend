@@ -1,7 +1,7 @@
-package com.gakkomobile.notifications.firebase;
+package com.gakkomobile.notifications.push;
 
-import com.gakkomobile.notifications.firebase.dto.UserDeviceTokenRegisterRequestDTO;
-import com.gakkomobile.notifications.firebase.dto.UserDeviceTokenResponseDTO;
+import com.gakkomobile.notifications.push.dto.UserDeviceTokenRegisterRequestDTO;
+import com.gakkomobile.notifications.push.dto.UserDeviceTokenResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class UserDeviceTokenService {
     private void registerToken(UUID userId, UserDeviceTokenRegisterRequestDTO request) {
 
         log.info("Registering new FCM token for user: {}", userId);
-        UserDeviceTokenEntity userDeviceTokenEntity = tokenMapper.requestToEntity(request);
+        UserDeviceTokenEntity userDeviceTokenEntity = tokenMapper.requestToEntity(request, userId);
         tokenRepository.save(userDeviceTokenEntity);
     }
 

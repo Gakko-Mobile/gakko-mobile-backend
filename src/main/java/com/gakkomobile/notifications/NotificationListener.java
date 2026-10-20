@@ -2,6 +2,7 @@ package com.gakkomobile.notifications;
 
 import com.gakkomobile.avro.NotificationEventAvro;
 import com.gakkomobile.notifications.dto.NotificationDTO;
+import com.gakkomobile.notifications.push.PushNotificationSender;
 import com.gakkomobile.notifications.settings.UserNotificationSettingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

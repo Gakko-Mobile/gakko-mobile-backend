@@ -1,8 +1,6 @@
-package com.gakkomobile.notifications.firebase;
+package com.gakkomobile.notifications.push;
 
 import com.gakkomobile.notifications.dto.NotificationDTO;
-import com.gakkomobile.notifications.PushNotificationSender;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MessagingErrorCode;
@@ -21,6 +19,8 @@ import java.util.UUID;
 public class FirebaseMessagingPushService implements PushNotificationSender {
 
     private final UserDeviceTokenRepository deviceTokenRepository;
+
+    private final FirebaseMessagingClient firebaseMessagingClient;
 
     public void send(NotificationDTO notificationDTO, UUID userId) {
 
@@ -64,7 +64,7 @@ public class FirebaseMessagingPushService implements PushNotificationSender {
     private void sendMessageToFirebase(Message message, UserDeviceTokenEntity token, String userId) {
 
         try {
-            String response = FirebaseMessaging.getInstance().send(message);
+            String response = firebaseMessagingClient.send(message);
             log.info("Successfully sent message: {}, with response:  {}", message, response);
         } catch (FirebaseMessagingException e) {
             if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {

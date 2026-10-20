@@ -1,4 +1,4 @@
-package com.gakkomobile.notifications.firebase;
+package com.gakkomobile.notifications.push;
 
 import com.gakkomobile.notifications.DevicePlatform;
 import jakarta.persistence.*;

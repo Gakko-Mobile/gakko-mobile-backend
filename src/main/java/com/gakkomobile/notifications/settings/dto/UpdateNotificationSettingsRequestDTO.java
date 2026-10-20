@@ -2,7 +2,9 @@ package com.gakkomobile.notifications.settings.dto;
 
 import com.gakkomobile.notifications.NotificationMode;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
+@Builder
 public record UpdateNotificationSettingsRequestDTO(
         @NotNull
         NotificationMode academicGrades,

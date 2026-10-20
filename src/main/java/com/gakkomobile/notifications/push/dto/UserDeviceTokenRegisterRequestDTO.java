@@ -1,9 +1,11 @@
-package com.gakkomobile.notifications.firebase.dto;
+package com.gakkomobile.notifications.push.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
+@Builder
 public record UserDeviceTokenRegisterRequestDTO(
 
         @NotBlank(message = "FCM token cannot be blank")

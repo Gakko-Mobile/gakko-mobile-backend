@@ -1,5 +1,6 @@
 package com.gakkomobile.user;
 
+import com.gakkomobile.auth.dto.UserCreatedEvent;
 import com.gakkomobile.groupmembership.GroupMembershipEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
@@ -11,11 +12,14 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.AfterDomainEventPublication;
+import org.springframework.data.domain.DomainEvents;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +78,9 @@ public class UserEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GroupMembershipEntity> groupMemberships = new HashSet<>();
 
+    @Transient
+    private final List<Object> domainEvents = new ArrayList<>();
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
@@ -87,6 +94,27 @@ public class UserEntity implements UserDetails {
         if (Objects.isNull(this.passwordChangedAt)) {
             this.passwordChangedAt = OffsetDateTime.now();
         }
+
+        registerCreatedEvent();
+    }
+
+    public void registerCreatedEvent() {
+
+        this.domainEvents.add(new UserCreatedEvent(this.getId()));
+    }
+
+    // JPA use this method - DO NOT DELETE
+    @DomainEvents
+    public Collection<Object> domainEvents() {
+
+        return List.copyOf(this.domainEvents);
+    }
+
+    // JPA use this method - DO NOT DELETE
+    @AfterDomainEventPublication
+    public void clearDomainEvents() {
+
+        this.domainEvents.clear();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.gakkomobile.notifications;
 
 import com.gakkomobile.exception.ResourceNotFoundException;
-import com.gakkomobile.notifications.dto.InAppNotificationDTO;
 import com.gakkomobile.notifications.dto.InAppNotificationReadInfoResponseDTO;
 import com.gakkomobile.notifications.dto.InAppNotificationResponseDTO;
 import com.gakkomobile.notifications.dto.NotificationDTO;
@@ -23,7 +22,6 @@ class NotificationService {
     private final NotificationOutboxEventFactory notificationOutboxEventFactory;
     private final NotificationMapper notificationMapper;
 
-    @Transactional
     public void putNotificationToOutbox(NotificationDTO notificationDTO) {
 
         notificationOutboxEventFactory.create(notificationDTO);

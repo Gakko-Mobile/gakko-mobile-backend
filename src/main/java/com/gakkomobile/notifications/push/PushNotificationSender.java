@@ -1,4 +1,4 @@
-package com.gakkomobile.notifications;
+package com.gakkomobile.notifications.push;
 
 import com.gakkomobile.notifications.dto.NotificationDTO;
 

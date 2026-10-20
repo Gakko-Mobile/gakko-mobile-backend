@@ -24,13 +24,15 @@ public class UserNotificationSettingsService {
 
     public UserNotificationSettingsResponseDTO getUserNotificationsSettings(UUID userId) {
 
-        return settingsRepository.findById(userId).map(settingsMapper::entityToResponseDTO)
+        return settingsRepository.findById(userId)
+                .map(settingsMapper::entityToResponseDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("User notification settings not found for user: " + userId));
     }
 
     public NotificationMode getUserNotificationSettingsMode(NotificationDTO notificationDTO, UUID targetId) {
 
-        UserNotificationSettingsDTO settings = settingsRepository.findById(targetId).map(settingsMapper::entityToDTO)
+        UserNotificationSettingsDTO settings = settingsRepository.findById(targetId)
+                .map(settingsMapper::entityToDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("User notification settings not found for user: " + targetId));
 
         return resolveMode(settings, notificationDTO.category());
@@ -41,7 +43,7 @@ public class UserNotificationSettingsService {
         NotificationCategory notificationCategory;
         try {
             notificationCategory = NotificationCategory.valueOf(category);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
 
             log.warn("Invalid notification category: {}", category);
             return NotificationMode.OFF;
