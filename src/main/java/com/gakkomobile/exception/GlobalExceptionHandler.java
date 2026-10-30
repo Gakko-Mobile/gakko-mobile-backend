@@ -1,12 +1,16 @@
 package com.gakkomobile.exception;
 
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
+import com.gakkomobile.surveys.exception.SurveyConflictException;
+import com.gakkomobile.surveys.exception.SurveyResultsHiddenException;
+import com.gakkomobile.surveys.exception.SurveyValidationException;
 import com.gakkomobile.user.exception.UserAlreadyExistsException;
 import com.gakkomobile.user.exception.UserNotFoundException;
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -182,6 +186,54 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(ex.getStatusCode()).body(error);
+    }
+
+    @ExceptionHandler(SurveyConflictException.class)
+    public ResponseEntity<ErrorResponse> handleSurveyConflict(SurveyConflictException exception) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                exception.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(SurveyValidationException.class)
+    public ResponseEntity<ErrorResponse> handleSurveyValidation(SurveyValidationException exception) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(SurveyResultsHiddenException.class)
+    public ResponseEntity<ErrorResponse> handleSurveyResultsHidden(SurveyResultsHiddenException exception) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                exception.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException exception) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                ExceptionErrorConstants.FORBIDDEN,
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
