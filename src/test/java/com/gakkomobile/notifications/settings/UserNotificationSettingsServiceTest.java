@@ -104,6 +104,7 @@ class UserNotificationSettingsServiceTest {
                 .academicCancelledClasses(mode)
                 .financialNewCharges(mode)
                 .eventsStudent(mode)
+                .communication(mode)
                 .build();
 
         when(settingsRepository.findById(uuid(0))).thenReturn(Optional.of(entity));
@@ -133,6 +134,7 @@ class UserNotificationSettingsServiceTest {
                 .financialNewCharges(NotificationMode.OFF)
                 .eventsStudent(NotificationMode.PUSH_AND_INAPP)
                 .academicGrades(NotificationMode.PUSH_AND_INAPP)
+                .communication(NotificationMode.INAPP_ONLY)
                 .build();
         UserNotificationSettingsEntity entity = new UserNotificationSettingsEntity();
         when(settingsRepository.findById(uuid(0))).thenReturn(Optional.of(entity));
@@ -146,6 +148,7 @@ class UserNotificationSettingsServiceTest {
         assertThat(entity.getFinancialNewCharges()).isEqualTo(NotificationMode.OFF);
         assertThat(entity.getEventsStudent()).isEqualTo(NotificationMode.PUSH_AND_INAPP);
         assertThat(entity.getAcademicGrades()).isEqualTo(NotificationMode.PUSH_AND_INAPP);
+        assertThat(entity.getCommunication()).isEqualTo(NotificationMode.INAPP_ONLY);
     }
 
     @Test
@@ -158,6 +161,7 @@ class UserNotificationSettingsServiceTest {
                 .financialNewCharges(NotificationMode.OFF)
                 .eventsStudent(NotificationMode.PUSH_AND_INAPP)
                 .academicGrades(NotificationMode.PUSH_AND_INAPP)
+                .communication(NotificationMode.PUSH_AND_INAPP)
                 .build();
         when(settingsRepository.findById(uuid(0))).thenReturn(Optional.empty());
 

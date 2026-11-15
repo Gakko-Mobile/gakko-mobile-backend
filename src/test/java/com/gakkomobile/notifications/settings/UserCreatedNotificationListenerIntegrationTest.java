@@ -57,6 +57,7 @@ class UserCreatedNotificationListenerIntegrationTest extends BaseIntegrationTest
         assertThat(settings.getAcademicCancelledClasses()).isEqualTo(NotificationMode.PUSH_AND_INAPP);
         assertThat(settings.getFinancialNewCharges()).isEqualTo(NotificationMode.PUSH_AND_INAPP);
         assertThat(settings.getEventsStudent()).isEqualTo(NotificationMode.INAPP_ONLY);
+        assertThat(settings.getCommunication()).isEqualTo(NotificationMode.PUSH_AND_INAPP);
         assertThat(settings.getUpdatedAt()).isNotNull();
     }
 

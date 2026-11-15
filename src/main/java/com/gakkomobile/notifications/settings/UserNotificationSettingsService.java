@@ -55,6 +55,7 @@ public class UserNotificationSettingsService {
             case ACADEMIC_CANCELLED_CLASSES -> settings.academicCancelledClasses();
             case FINANCIAL_NEW_CHARGES -> settings.financialNewCharges();
             case EVENTS_STUDENT -> settings.eventsStudent();
+            case COMMUNICATION -> settings.communication();
         };
     }
 
@@ -69,5 +70,6 @@ public class UserNotificationSettingsService {
         settings.setAcademicCancelledClasses(request.academicCancelledClasses());
         settings.setFinancialNewCharges(request.financialNewCharges());
         settings.setEventsStudent(request.eventsStudent());
+        settings.setCommunication(request.communication());
     }
 }

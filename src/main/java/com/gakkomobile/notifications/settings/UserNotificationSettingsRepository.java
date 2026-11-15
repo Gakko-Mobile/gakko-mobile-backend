@@ -19,14 +19,16 @@ interface UserNotificationSettingsRepository extends JpaRepository<UserNotificat
             academic_schedule_changes,
             academic_cancelled_classes,
             financial_new_charges,
-            events_student
+            events_student,
+            communication
         ) VALUES (
             :userId,
             'PUSH_AND_INAPP',
             'PUSH_AND_INAPP',
             'PUSH_AND_INAPP',
             'PUSH_AND_INAPP',
-            'INAPP_ONLY'
+            'INAPP_ONLY',
+            'PUSH_AND_INAPP'
         )
         ON CONFLICT (user_id) DO NOTHING
         """, nativeQuery = true)
