@@ -1,5 +1,5 @@
 package com.gakkomobile.common.event;
 
 public enum EventAggregationType {
-    SCHEDULE, EVENT, SURVEY
+    SCHEDULE, EVENT, SURVEY, MESSAGE
 }

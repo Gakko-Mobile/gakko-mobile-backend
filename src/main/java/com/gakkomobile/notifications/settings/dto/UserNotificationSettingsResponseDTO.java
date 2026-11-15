@@ -9,6 +9,7 @@ public record UserNotificationSettingsResponseDTO(
         NotificationMode academicScheduleChanges,
         NotificationMode academicCancelledClasses,
         NotificationMode financialNewCharges,
-        NotificationMode eventsStudent
+        NotificationMode eventsStudent,
+        NotificationMode communication
 ) {
 }

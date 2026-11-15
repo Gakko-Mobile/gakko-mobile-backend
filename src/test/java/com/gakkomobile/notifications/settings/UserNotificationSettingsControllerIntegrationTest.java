@@ -54,7 +54,8 @@ class UserNotificationSettingsControllerIntegrationTest extends BaseIntegrationT
                     .jsonPath("$.academicScheduleChanges").isEqualTo("PUSH_AND_INAPP")
                     .jsonPath("$.academicCancelledClasses").isEqualTo("PUSH_AND_INAPP")
                     .jsonPath("$.financialNewCharges").isEqualTo("PUSH_AND_INAPP")
-                    .jsonPath("$.eventsStudent").isEqualTo("INAPP_ONLY");
+                    .jsonPath("$.eventsStudent").isEqualTo("INAPP_ONLY")
+                    .jsonPath("$.communication").isEqualTo("PUSH_AND_INAPP");
         }
 
         @Test
@@ -113,7 +114,8 @@ class UserNotificationSettingsControllerIntegrationTest extends BaseIntegrationT
                     NotificationMode.INAPP_ONLY,
                     NotificationMode.OFF,
                     NotificationMode.PUSH_AND_INAPP,
-                    NotificationMode.OFF
+                    NotificationMode.OFF,
+                    NotificationMode.INAPP_ONLY
             );
 
             // when & then
@@ -132,6 +134,7 @@ class UserNotificationSettingsControllerIntegrationTest extends BaseIntegrationT
             assertThat(updatedEntity.getAcademicCancelledClasses()).isEqualTo(NotificationMode.OFF);
             assertThat(updatedEntity.getFinancialNewCharges()).isEqualTo(NotificationMode.PUSH_AND_INAPP);
             assertThat(updatedEntity.getEventsStudent()).isEqualTo(NotificationMode.OFF);
+            assertThat(updatedEntity.getCommunication()).isEqualTo(NotificationMode.INAPP_ONLY);
         }
 
         @Test
@@ -141,6 +144,7 @@ class UserNotificationSettingsControllerIntegrationTest extends BaseIntegrationT
 
             // given
             UpdateNotificationSettingsRequestDTO updateRequest = new UpdateNotificationSettingsRequestDTO(
+                    NotificationMode.OFF,
                     NotificationMode.OFF,
                     NotificationMode.OFF,
                     NotificationMode.OFF,
@@ -170,7 +174,8 @@ class UserNotificationSettingsControllerIntegrationTest extends BaseIntegrationT
                     NotificationMode.INAPP_ONLY,
                     NotificationMode.OFF,
                     NotificationMode.PUSH_AND_INAPP,
-                    NotificationMode.OFF
+                    NotificationMode.OFF,
+                    NotificationMode.PUSH_AND_INAPP
             );
 
             // when & then
