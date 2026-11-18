@@ -21,7 +21,7 @@ public class AcademicGroupController {
             @RequestParam(name = "studies-name") String studiesName,
             @RequestParam(name = "academic-year") String academicYear
     ) {
-        List<AcademicGroupIdentifiersResponseDTO> responseBody = academicGroupService.searchUserIdentifiers(
+        List<AcademicGroupIdentifiersResponseDTO> responseBody = academicGroupService.searchGroupIdentifiers(
                 studiesName,
                 academicYear
         );

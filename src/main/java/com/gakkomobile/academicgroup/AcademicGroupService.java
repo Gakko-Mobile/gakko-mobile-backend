@@ -16,7 +16,7 @@ public class AcademicGroupService {
     private final AcademicGroupRepository academicGroupRepository;
     private final AcademicGroupMapper academicGroupMapper;
 
-    public List<AcademicGroupIdentifiersResponseDTO> searchUserIdentifiers(
+    public List<AcademicGroupIdentifiersResponseDTO> searchGroupIdentifiers(
             String studiesName,
             String academicYear
     ) {

@@ -50,9 +50,6 @@ public class GroupClassEntity {
     @Column(name = "is_one_time", nullable = false)
     private boolean oneTime;
 
-    @Column(name = "ms_teams_code", length = 100)
-    private String msTeamsCode;
-
     @OneToMany(mappedBy = "groupClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ClassSlotEntity> slots = new HashSet<>();
 

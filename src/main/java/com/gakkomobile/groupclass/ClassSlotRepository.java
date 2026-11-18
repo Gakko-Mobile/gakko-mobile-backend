@@ -11,6 +11,10 @@ import java.util.UUID;
 
 @Repository
 interface ClassSlotRepository extends JpaRepository<ClassSlotEntity, UUID> {
+    boolean existsByGroupClassId(UUID groupClassId);
+
+    boolean existsByGroupClassIdAndClassDate(UUID groupClassId, LocalDate classDate);
+
     @Query("""
         SELECT cs FROM ClassSlotEntity cs
         JOIN cs.groupClass gc

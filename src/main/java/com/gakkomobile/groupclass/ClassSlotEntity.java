@@ -27,6 +27,9 @@ public class ClassSlotEntity {
     @Column(name = "class_date", nullable = false)
     private LocalDate classDate;
 
+    @Column(name = "ms_teams_code", length = 100)
+    private String msTeamsCode;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

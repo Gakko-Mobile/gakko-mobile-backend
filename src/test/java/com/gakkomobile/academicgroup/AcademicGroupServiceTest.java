@@ -30,7 +30,7 @@ class AcademicGroupServiceTest {
     private AcademicGroupService academicGroupService;
 
     @Test
-    void searchUserIdentifiers_ShouldReturnMappedResponses_WhenGroupsFound() {
+    void searchGroupIdentifiers_ShouldReturnMappedResponses_WhenGroupsFound() {
         // given
         String studiesName = "Computer Science - Web Development";
         String academicYear = "2026/2027";
@@ -62,7 +62,7 @@ class AcademicGroupServiceTest {
         when(academicGroupMapper.toDto(group2)).thenReturn(dto2);
 
         // when
-        List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
+        List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchGroupIdentifiers(studiesName, academicYear);
 
         // then
         assertThat(result).hasSize(2);
@@ -83,7 +83,7 @@ class AcademicGroupServiceTest {
     }
 
     @Test
-    void searchUserIdentifiers_ShouldReturnEmptyList_WhenNoGroupsFound() {
+    void searchGroupIdentifiers_ShouldReturnEmptyList_WhenNoGroupsFound() {
         // given
         String studiesName = "Unknown Studies";
         String academicYear = "2099/2100";
@@ -92,7 +92,7 @@ class AcademicGroupServiceTest {
                 .thenReturn(Collections.emptyList());
 
         // when
-        List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchUserIdentifiers(studiesName, academicYear);
+        List<AcademicGroupIdentifiersResponseDTO> result = academicGroupService.searchGroupIdentifiers(studiesName, academicYear);
 
         // then
         assertThat(result).isEmpty();

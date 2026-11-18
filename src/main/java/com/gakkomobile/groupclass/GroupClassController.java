@@ -1,7 +1,12 @@
 package com.gakkomobile.groupclass;
 
+import com.gakkomobile.groupclass.dto.CreateClassSlotRequestDTO;
+import com.gakkomobile.groupclass.dto.CreateGroupClassRequestDTO;
 import com.gakkomobile.groupclass.dto.CreateScheduleRequestDTO;
 import com.gakkomobile.groupclass.dto.GroupClassResponseDTO;
+import com.gakkomobile.groupclass.dto.GroupClassWithSlotsResponseDTO;
+import com.gakkomobile.groupclass.dto.UpdateClassSlotRequestDTO;
+import com.gakkomobile.groupclass.dto.UpdateGroupClassRequestDTO;
 import com.gakkomobile.groupclass.utils.ScheduleFilterOption;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +14,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,13 +51,70 @@ public class GroupClassController {
         return ResponseEntity.ok(responseBody);
     }
 
-    @PostMapping("/schedule")
+    @PostMapping
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
-    public ResponseEntity<List<GroupClassResponseDTO>> createSchedule(
-            @Valid @RequestBody CreateScheduleRequestDTO request
+    public ResponseEntity<GroupClassWithSlotsResponseDTO> createGroupClass(
+            @Valid @RequestBody CreateGroupClassRequestDTO request
     ) {
-        List<GroupClassResponseDTO> responseBody = groupClassService.createSchedule(request);
+        GroupClassWithSlotsResponseDTO responseBody = groupClassService.createGroupClass(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+    }
+
+    @PostMapping("/schedule")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<List<GroupClassWithSlotsResponseDTO>> createSchedule(
+            @Valid @RequestBody CreateScheduleRequestDTO request
+    ) {
+        List<GroupClassWithSlotsResponseDTO> responseBody = groupClassService.createSchedule(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+    }
+
+    @PostMapping("/{id}/slots")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<GroupClassWithSlotsResponseDTO> createClassSlot(
+            @PathVariable UUID id,
+            @Valid @RequestBody CreateClassSlotRequestDTO request
+    ) {
+        GroupClassWithSlotsResponseDTO responseBody = groupClassService.createClassSlot(id, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+    }
+
+    @PutMapping("/{id}/slots/{date}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<GroupClassWithSlotsResponseDTO> updateClassSlot(
+            @PathVariable UUID id,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @Valid @RequestBody UpdateClassSlotRequestDTO request
+    ) {
+        return ResponseEntity.ok(groupClassService.updateClassSlot(id, date, request));
+    }
+
+    @DeleteMapping("/{id}/slots/{date}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<GroupClassWithSlotsResponseDTO> deleteClassSlot(
+            @PathVariable UUID id,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        return ResponseEntity.ok(groupClassService.deleteClassSlot(id, date));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<GroupClassWithSlotsResponseDTO> updateGroupClass(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateGroupClassRequestDTO request
+    ) {
+        return ResponseEntity.ok(groupClassService.updateGroupClass(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<Void> deleteGroupClass(@PathVariable UUID id) {
+        groupClassService.deleteGroupClass(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

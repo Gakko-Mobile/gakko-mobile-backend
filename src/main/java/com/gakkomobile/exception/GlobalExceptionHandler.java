@@ -1,6 +1,7 @@
 package com.gakkomobile.exception;
 
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
+import com.gakkomobile.groupclass.exception.ClassSlotConflictException;
 import com.gakkomobile.groupclass.exception.InvalidScheduleException;
 import com.gakkomobile.surveys.exception.SurveyConflictException;
 import com.gakkomobile.surveys.exception.SurveyResultsHiddenException;
@@ -176,6 +177,17 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(ClassSlotConflictException.class)
+    public ResponseEntity<ErrorResponse> handleClassSlotConflict(ClassSlotConflictException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(AcademicGroupNotFoundException.class)
