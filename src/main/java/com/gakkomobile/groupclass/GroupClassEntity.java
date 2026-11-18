@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -39,14 +41,20 @@ public class GroupClassEntity {
     @JoinColumn(name = "room_id", nullable = false)
     private RoomEntity room;
 
-    @Column(name = "start_timestamp", nullable = false)
-    private OffsetDateTime startTimestamp;
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
 
-    @Column(name = "end_timestamp", nullable = false)
-    private OffsetDateTime endTimestamp;
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
+
+    @Column(name = "is_one_time", nullable = false)
+    private boolean oneTime;
 
     @Column(name = "ms_teams_code", length = 100)
     private String msTeamsCode;
+
+    @OneToMany(mappedBy = "groupClass", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClassSlotEntity> slots = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

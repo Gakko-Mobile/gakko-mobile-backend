@@ -11,4 +11,8 @@ public class ExceptionErrorConstants {
     public static String ACADEMIC_GROUP_NAME_NOT_PROVIDED = "Group name not provided.";
     public static String FORBIDDEN = "Action forbidden.";
     public static String SOMETHING_WENT_WRONG_WITH_AUTH = "Something went wrong with authentication.";
-}
+    public static String SUBJECT_NOT_FOUND = "Subject not found.";
+    public static String ROOM_NOT_FOUND = "Room not found.";
+    public static String SCHEDULE_END_DATE_BEFORE_START_DATE = "Schedule end date must not be before start date.";
+    public static String SCHEDULE_SLOT_END_TIME_NOT_AFTER_START_TIME = "Slot end time must be after its start time.";
+    public static String SCHEDULE_DATE_RANGE_TOO_LONG = "Schedule date range must not exceed %d months.";}

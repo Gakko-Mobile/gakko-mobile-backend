@@ -1,6 +1,7 @@
 package com.gakkomobile.exception;
 
 import com.gakkomobile.academicgroup.exception.AcademicGroupNotFoundException;
+import com.gakkomobile.groupclass.exception.InvalidScheduleException;
 import com.gakkomobile.surveys.exception.SurveyConflictException;
 import com.gakkomobile.surveys.exception.SurveyResultsHiddenException;
 import com.gakkomobile.surveys.exception.SurveyValidationException;
@@ -157,6 +158,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadSearchParamsException.class)
     public ResponseEntity<ErrorResponse> handleBadSearchParams(BadSearchParamsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidScheduleException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidSchedule(InvalidScheduleException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
