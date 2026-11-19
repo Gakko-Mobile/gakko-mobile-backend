@@ -19,10 +19,16 @@ interface ClassSlotRepository extends JpaRepository<ClassSlotEntity, UUID> {
         SELECT cs FROM ClassSlotEntity cs
         JOIN cs.groupClass gc
         WHERE cs.classDate = :date
-        AND EXISTS (
-            SELECT 1 FROM GroupMembershipEntity gm
-            WHERE gm.user.email = :email
-            AND gm.group MEMBER OF gc.groups
+        AND (
+            EXISTS (
+                SELECT 1 FROM GroupMembershipEntity gm
+                WHERE gm.user.email = :email
+                AND gm.group MEMBER OF gc.groups
+            )
+            OR EXISTS (
+                SELECT 1 FROM gc.lecturers lecturer
+                WHERE lecturer.email = :email
+            )
         )
         ORDER BY gc.startTime ASC
     """)

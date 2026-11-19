@@ -6,6 +6,7 @@ import com.gakkomobile.groupclass.exception.InvalidScheduleException;
 import com.gakkomobile.surveys.exception.SurveyConflictException;
 import com.gakkomobile.surveys.exception.SurveyResultsHiddenException;
 import com.gakkomobile.surveys.exception.SurveyValidationException;
+import com.gakkomobile.user.exception.NotALecturerException;
 import com.gakkomobile.user.exception.UserAlreadyExistsException;
 import com.gakkomobile.user.exception.UserNotFoundException;
 import io.jsonwebtoken.JwtException;
@@ -170,6 +171,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidScheduleException.class)
     public ResponseEntity<ErrorResponse> handleInvalidSchedule(InvalidScheduleException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(NotALecturerException.class)
+    public ResponseEntity<ErrorResponse> handleNotALecturer(NotALecturerException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),

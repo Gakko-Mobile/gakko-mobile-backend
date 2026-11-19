@@ -130,13 +130,11 @@ public interface GroupClassMapper {
 
     @Named("extractLecturers")
     default Set<String> extractLecturers(GroupClassEntity entity) {
-        if (Objects.isNull(entity) || Objects.isNull(entity.getGroups())) {
+        if (Objects.isNull(entity) || Objects.isNull(entity.getLecturers())) {
             return new HashSet<>();
         }
-        return entity.getGroups().stream()
-                .flatMap(g -> g.getMemberships().stream())
-                .filter(m -> m.getUser().getRole() == Role.LECTURER)
-                .map(m -> m.getUser().getLastName() + " " + m.getUser().getFirstName())
+        return entity.getLecturers().stream()
+                .map(lecturer -> lecturer.getLastName() + " " + lecturer.getFirstName())
                 .collect(Collectors.toSet());
     }
 }

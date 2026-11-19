@@ -69,11 +69,9 @@ VALUES ('019ff6f0-0000-7000-8000-000000000041', 'WIs I.1', '2026/2027','019ff6f0
        ('019ff6f0-0000-7000-8000-000000000049', 'SNM II.1', '2026/2027', '019ff6f0-0000-7000-8000-000000000012'),
        ('019ff6f0-0000-7000-8000-00000000004a', 'SNM II.2', '2026/2027', '019ff6f0-0000-7000-8000-000000000012');
 
--- 5. USER GROUPS (10 records: assigning users to groups. Danisa gets ITN status in one)
+-- 5. USER GROUPS (students only. Danisa gets ITN status in one). Lecturers are linked to classes directly (see 9b).
 INSERT INTO user_groups (user_id, group_id, is_itn)
-VALUES ('019ff6f0-0000-7000-8000-000000000031', '019ff6f0-0000-7000-8000-000000000041', false), -- Lecturer 1 in WIs I.1
-       ('019ff6f0-0000-7000-8000-000000000032', '019ff6f0-0000-7000-8000-000000000046', false), -- Lecturer 2 in SNM I.1
-       ('019ff6f0-55ff-7bc9-8f81-5fb79d602115', '019ff6f0-0000-7000-8000-000000000041',
+VALUES ('019ff6f0-55ff-7bc9-8f81-5fb79d602115', '019ff6f0-0000-7000-8000-000000000041',
         false),                                                                                 -- Danisa in WIs I.1 (Regular)
        ('019ff6f0-55ff-7bc9-8f81-5fb79d602115', '019ff6f0-0000-7000-8000-000000000044',
         true),                                                                                  -- Danisa in WIs II.1 (ITN status)
@@ -181,6 +179,21 @@ VALUES
 
     -- Recurring class: Advanced Java Programming for WIs I.1
     ('019ff6f0-0000-7000-8000-00000000007b', '019ff6f0-0000-7000-8000-000000000041');
+
+-- 9b. GROUP CLASSES -> LECTURERS (lecturers are attached directly to classes)
+-- Jan Kowalski (...31) teaches the WIs classes, Anna Nowak (...32) teaches the SNM classes.
+INSERT INTO group_class_lecturers (class_id, lecturer_id)
+VALUES ('019ff6f0-0000-7000-8000-000000000071', '019ff6f0-0000-7000-8000-000000000031'),
+       ('019ff6f0-0000-7000-8000-000000000072', '019ff6f0-0000-7000-8000-000000000031'),
+       ('019ff6f0-0000-7000-8000-000000000073', '019ff6f0-0000-7000-8000-000000000031'),
+       ('019ff6f0-0000-7000-8000-000000000074', '019ff6f0-0000-7000-8000-000000000031'),
+       ('019ff6f0-0000-7000-8000-000000000075', '019ff6f0-0000-7000-8000-000000000032'),
+       ('019ff6f0-0000-7000-8000-000000000076', '019ff6f0-0000-7000-8000-000000000031'),
+       ('019ff6f0-0000-7000-8000-000000000077', '019ff6f0-0000-7000-8000-000000000031'),
+       ('019ff6f0-0000-7000-8000-000000000078', '019ff6f0-0000-7000-8000-000000000032'),
+       ('019ff6f0-0000-7000-8000-000000000079', '019ff6f0-0000-7000-8000-000000000032'),
+       ('019ff6f0-0000-7000-8000-00000000007a', '019ff6f0-0000-7000-8000-000000000032'),
+       ('019ff6f0-0000-7000-8000-00000000007b', '019ff6f0-0000-7000-8000-000000000031');
 
 UPDATE users SET password_hash = '$2a$10$SHOpK0jnkFcimNVcZyC3OeQcihnW6DWAnmQUjAyqIvYnUN/j5Wc7e';
 UPDATE users SET index_number = null where role != 'STUDENT';

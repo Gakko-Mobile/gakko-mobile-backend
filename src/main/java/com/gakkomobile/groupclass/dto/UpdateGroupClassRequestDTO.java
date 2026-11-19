@@ -11,6 +11,7 @@ public record UpdateGroupClassRequestDTO(
         @NotNull UUID subjectId,
         @NotNull UUID roomId,
         @NotEmpty Set<@NotNull UUID> groupIds,
+        @NotEmpty Set<@NotNull UUID> lecturerIds,
         @NotNull LocalTime startTime,
         @NotNull LocalTime endTime
 ) {

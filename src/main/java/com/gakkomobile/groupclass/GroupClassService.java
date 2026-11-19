@@ -21,8 +21,8 @@ import com.gakkomobile.room.RoomEntity;
 import com.gakkomobile.room.RoomService;
 import com.gakkomobile.subject.SubjectEntity;
 import com.gakkomobile.subject.SubjectService;
-import com.gakkomobile.user.UserRepository;
-import com.gakkomobile.user.exception.UserNotFoundException;
+import com.gakkomobile.user.UserEntity;
+import com.gakkomobile.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,11 +46,11 @@ public class GroupClassService {
 
     private final GroupClassRepository groupClassRepository;
     private final ClassSlotRepository classSlotRepository;
-    private final UserRepository userRepository;
     private final AcademicGroupService academicGroupService;
     private final GroupClassMapper groupClassMapper;
     private final SubjectService subjectService;
     private final RoomService roomService;
+    private final UserService userService;
 
     static final int MAX_SCHEDULE_RANGE_IN_MONTHS = 5;
 
@@ -67,9 +67,7 @@ public class GroupClassService {
                         ExceptionErrorConstants.EMAIL_NOT_PROVIDED
                 );
 
-                if (!userRepository.existsByEmail(userEmail)) {
-                    throw new UserNotFoundException();
-                }
+                userService.existsByEmail(userEmail);
 
                 yield classSlotRepository.findSlotsByUserEmailAndDate(userEmail, date);
             }
@@ -101,6 +99,7 @@ public class GroupClassService {
         Map<UUID, SubjectEntity> subjects = new HashMap<>();
         Map<UUID, RoomEntity> rooms = new HashMap<>();
         Map<Set<UUID>, Set<AcademicGroupEntity>> groupsByIds = new HashMap<>();
+        Map<Set<UUID>, Set<UserEntity>> lecturersByIds = new HashMap<>();
 
         List<GroupClassEntity> groupClasses = new ArrayList<>();
         for (ScheduleGroupClassDTO groupClassDefinition : request.groupClasses()) {
@@ -116,6 +115,10 @@ public class GroupClassService {
                     groupClassDefinition.groupIds(),
                     academicGroupService::getAllByIds
             );
+            Set<UserEntity> lecturers = lecturersByIds.computeIfAbsent(
+                    groupClassDefinition.lecturerIds(),
+                    userService::getLecturersByIds
+            );
 
             groupClasses.add(buildRecurringGroupClass(
                     groupClassDefinition,
@@ -123,7 +126,8 @@ public class GroupClassService {
                     request.endDate(),
                     subject,
                     room,
-                    groups
+                    groups,
+                    lecturers
             ));
         }
 
@@ -144,11 +148,13 @@ public class GroupClassService {
         SubjectEntity subject = subjectService.getById(request.subjectId());
         RoomEntity room = roomService.getById(request.roomId());
         Set<AcademicGroupEntity> groups = academicGroupService.getAllByIds(request.groupIds());
+        Set<UserEntity> lecturers = userService.getLecturersByIds(request.lecturerIds());
 
         GroupClassEntity groupClass = new GroupClassEntity();
         groupClass.setSubject(subject);
         groupClass.setRoom(room);
         groupClass.setGroups(new HashSet<>(groups));
+        groupClass.setLecturers(new HashSet<>(lecturers));
         groupClass.setStartTime(request.startTime());
         groupClass.setEndTime(request.endTime());
         groupClass.setOneTime(request.oneTime());
@@ -173,6 +179,7 @@ public class GroupClassService {
         groupClass.setSubject(subjectService.getById(request.subjectId()));
         groupClass.setRoom(roomService.getById(request.roomId()));
         groupClass.setGroups(new HashSet<>(academicGroupService.getAllByIds(request.groupIds())));
+        groupClass.setLecturers(new HashSet<>(userService.getLecturersByIds(request.lecturerIds())));
         groupClass.setStartTime(request.startTime());
         groupClass.setEndTime(request.endTime());
 
@@ -187,7 +194,10 @@ public class GroupClassService {
     }
 
     @Transactional
-    public GroupClassWithSlotsResponseDTO createClassSlot(UUID groupClassId, CreateClassSlotRequestDTO request) {
+    public GroupClassWithSlotsResponseDTO createClassSlot(
+            UUID groupClassId,
+            CreateClassSlotRequestDTO request
+    ) {
         GroupClassEntity groupClass = getGroupClassOrThrow(groupClassId);
 
         if (groupClass.isOneTime() && classSlotRepository.existsByGroupClassId(groupClassId)) {
@@ -257,12 +267,14 @@ public class GroupClassService {
             LocalDate endDate,
             SubjectEntity subject,
             RoomEntity room,
-            Set<AcademicGroupEntity> groups
+            Set<AcademicGroupEntity> groups,
+            Set<UserEntity> lecturers
     ) {
         GroupClassEntity groupClass = new GroupClassEntity();
         groupClass.setSubject(subject);
         groupClass.setRoom(room);
         groupClass.setGroups(new HashSet<>(groups));
+        groupClass.setLecturers(new HashSet<>(lecturers));
         groupClass.setStartTime(definition.startTime());
         groupClass.setEndTime(definition.endTime());
         groupClass.setOneTime(false);

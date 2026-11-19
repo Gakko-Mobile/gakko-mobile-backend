@@ -14,6 +14,8 @@ public class ExceptionErrorConstants {
     public static String SUBJECT_NOT_FOUND = "Subject not found.";
     public static String ROOM_NOT_FOUND = "Room not found.";
     public static String GROUP_CLASS_NOT_FOUND = "Group class not found.";
+    public static String LECTURER_NOT_FOUND = "Lecturer not found.";
+    public static String USER_IS_NOT_A_LECTURER = "User %s is not a lecturer.";
     public static String ONE_TIME_CLASS_MULTIPLE_SLOTS = "A one-time class can have only one slot.";
     public static String DUPLICATE_SLOT_DATES = "Slot dates must be unique.";
     public static String CLASS_SLOT_NOT_FOUND = "Class slot not found.";

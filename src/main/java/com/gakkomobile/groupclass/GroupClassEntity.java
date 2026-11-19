@@ -3,6 +3,7 @@ package com.gakkomobile.groupclass;
 import com.gakkomobile.academicgroup.AcademicGroupEntity;
 import com.gakkomobile.room.RoomEntity;
 import com.gakkomobile.subject.SubjectEntity;
+import com.gakkomobile.user.UserEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -36,6 +37,14 @@ public class GroupClassEntity {
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
     private Set<AcademicGroupEntity> groups;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "group_class_lecturers",
+            joinColumns = @JoinColumn(name = "class_id"),
+            inverseJoinColumns = @JoinColumn(name = "lecturer_id")
+    )
+    private Set<UserEntity> lecturers = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
