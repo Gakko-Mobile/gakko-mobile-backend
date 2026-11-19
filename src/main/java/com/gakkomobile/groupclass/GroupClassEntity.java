@@ -3,13 +3,16 @@ package com.gakkomobile.groupclass;
 import com.gakkomobile.academicgroup.AcademicGroupEntity;
 import com.gakkomobile.room.RoomEntity;
 import com.gakkomobile.subject.SubjectEntity;
+import com.gakkomobile.user.UserEntity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -35,18 +38,29 @@ public class GroupClassEntity {
     )
     private Set<AcademicGroupEntity> groups;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "group_class_lecturers",
+            joinColumns = @JoinColumn(name = "class_id"),
+            inverseJoinColumns = @JoinColumn(name = "lecturer_id")
+    )
+    private Set<UserEntity> lecturers = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     private RoomEntity room;
 
-    @Column(name = "start_timestamp", nullable = false)
-    private OffsetDateTime startTimestamp;
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
 
-    @Column(name = "end_timestamp", nullable = false)
-    private OffsetDateTime endTimestamp;
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
 
-    @Column(name = "ms_teams_code", length = 100)
-    private String msTeamsCode;
+    @Column(name = "is_one_time", nullable = false)
+    private boolean oneTime;
+
+    @OneToMany(mappedBy = "groupClass", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ClassSlotEntity> slots = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

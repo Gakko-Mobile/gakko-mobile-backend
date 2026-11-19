@@ -1,9 +1,14 @@
 package com.gakkomobile.user;
 
 import com.gakkomobile.exception.ExceptionErrorConstants;
+import com.gakkomobile.exception.ResourceNotFoundException;
 import com.gakkomobile.user.dto.UserIdentifiersResponseDTO;
+import com.gakkomobile.user.exception.NotALecturerException;
+import com.gakkomobile.user.exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,8 +19,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -178,5 +186,78 @@ class UserServiceTest {
         assertThat(result).isEmpty();
         verify(userRepository).searchByFullNameOrIndex(searchQuery, pageable);
         verifyNoInteractions(userMapper);
+    }
+
+    @Test
+    void existsByEmail_ShouldNotThrow_WhenUserExists() {
+        // given
+        when(userRepository.existsByEmail("jan@pjatk.edu.pl")).thenReturn(true);
+
+        // when and then
+        assertThatCode(() -> userService.existsByEmail("jan@pjatk.edu.pl")).doesNotThrowAnyException();
+    }
+
+    @Test
+    void existsByEmail_ShouldThrowUserNotFound_WhenUserDoesNotExist() {
+        // given
+        when(userRepository.existsByEmail("unknown@pjatk.edu.pl")).thenReturn(false);
+
+        // when and then
+        assertThatThrownBy(() -> userService.existsByEmail("unknown@pjatk.edu.pl"))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void getLecturersByIds_ShouldReturnAllLecturers() {
+        // given
+        UserEntity first = userWithRole(Role.LECTURER);
+        UserEntity second = userWithRole(Role.LECTURER);
+        Set<UUID> ids = Set.of(first.getId(), second.getId());
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of(first, second));
+
+        // when
+        Set<UserEntity> result = userService.getLecturersByIds(ids);
+
+        // then
+        assertThat(result).containsExactlyInAnyOrder(first, second);
+    }
+
+    @Test
+    void getLecturersByIds_ShouldThrowResourceNotFound_WhenAnyIdIsUnknown() {
+        // given
+        UserEntity known = userWithRole(Role.LECTURER);
+        UUID unknownId = UUID.randomUUID();
+        Set<UUID> ids = Set.of(known.getId(), unknownId);
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of(known));
+
+        // when and then
+        assertThatThrownBy(() -> userService.getLecturersByIds(ids))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(ExceptionErrorConstants.LECTURER_NOT_FOUND);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Role.class, names = {"STUDENT", "EMPLOYEE", "USER", "ADMIN"})
+    void getLecturersByIds_ShouldThrowNotALecturer_WhenUserHasAnotherRole(Role role) {
+        // given
+        UserEntity lecturer = userWithRole(Role.LECTURER);
+        UserEntity other = userWithRole(role);
+        Set<UUID> ids = Set.of(lecturer.getId(), other.getId());
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of(lecturer, other));
+
+        // when and then
+        assertThatThrownBy(() -> userService.getLecturersByIds(ids))
+                .isInstanceOf(NotALecturerException.class)
+                .hasMessage(ExceptionErrorConstants.USER_IS_NOT_A_LECTURER.formatted(other.getId()));
+    }
+
+    private UserEntity userWithRole(Role role) {
+        UserEntity user = new UserEntity();
+        user.setId(UUID.randomUUID());
+        user.setRole(role);
+        return user;
     }
 }
