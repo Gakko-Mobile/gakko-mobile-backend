@@ -17,7 +17,7 @@ public class WorkingHoursEvaluator {
 
     static final ZoneId WARSAW = ZoneId.of("Europe/Warsaw");
     private static final LocalTime OPENING = LocalTime.of(8, 0);
-    private static final LocalTime CLOSING = LocalTime.of(17, 0);
+    private static final LocalTime CLOSING = LocalTime.of(20, 0);
 
     private final Clock clock;
 
@@ -42,10 +42,6 @@ public class WorkingHoursEvaluator {
     public boolean isWithinWorkingHours(Instant instant) {
 
         ZonedDateTime zoned = instant.atZone(WARSAW);
-        DayOfWeek day = zoned.getDayOfWeek();
-        if (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY) {
-            return false;
-        }
         LocalTime time = zoned.toLocalTime();
         return !time.isBefore(OPENING) && time.isBefore(CLOSING);
     }

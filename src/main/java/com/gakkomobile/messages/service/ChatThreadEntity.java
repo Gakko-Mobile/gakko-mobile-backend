@@ -13,6 +13,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -37,9 +39,11 @@ class ChatThreadEntity {
     private ThreadType threadType;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private OffsetDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
     private OffsetDateTime updatedAt;
 
     @PrePersist
@@ -47,13 +51,6 @@ class ChatThreadEntity {
 
         if (Objects.isNull(this.id)) {
             this.id = UuidCreator.getTimeOrderedEpoch();
-        }
-        OffsetDateTime now = OffsetDateTime.now();
-        if (Objects.isNull(this.createdAt)) {
-            this.createdAt = now;
-        }
-        if (Objects.isNull(this.updatedAt)) {
-            this.updatedAt = now;
         }
     }
 

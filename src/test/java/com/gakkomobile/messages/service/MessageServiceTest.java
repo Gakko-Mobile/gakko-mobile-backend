@@ -1,5 +1,6 @@
 package com.gakkomobile.messages.service;
 
+import static com.gakkomobile.utils.DatasetConstants.uuid;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +21,7 @@ import com.gakkomobile.messages.dto.SendMessagePayloadDTO;
 import com.gakkomobile.user.Role;
 import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
+import com.gakkomobile.user.UserService;
 import com.gakkomobile.utils.DatasetConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,10 +50,10 @@ import java.util.UUID;
 class MessageServiceTest {
 
     private static final ZoneId WARSAW = ZoneId.of("Europe/Warsaw");
-    private static final UUID CREATOR_ID = DatasetConstants.uuid(1);
-    private static final UUID LECTURER_ID =  DatasetConstants.uuid(2);
-    private static final UUID THREAD_ID = DatasetConstants.uuid(3);
-    private static final UUID MESSAGE_ID = DatasetConstants.uuid(4);
+    private static final UUID CREATOR_ID = uuid(1);
+    private static final UUID LECTURER_ID =  uuid(2);
+    private static final UUID THREAD_ID = uuid(3);
+    private static final UUID MESSAGE_ID = uuid(4);
 
     @Mock
     private ChatThreadRepository threadRepository;
@@ -57,6 +61,8 @@ class MessageServiceTest {
     private ChatThreadParticipantRepository participantRepository;
     @Mock
     private ChatMessageRepository messageRepository;
+    @Mock
+    private UserService userService;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -75,8 +81,8 @@ class MessageServiceTest {
     @Test
     void createThread_shouldTrimSubjectAndStoreEachParticipantOnce() {
 
-        when(userRepository.findById(CREATOR_ID)).thenReturn(Optional.of(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak")));
-        when(userRepository.findById(LECTURER_ID)).thenReturn(Optional.of(user(LECTURER_ID, Role.LECTURER, "Jan", "Kowalski")));
+        when(userService.requireUser(CREATOR_ID)).thenReturn(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak"));
+        when(userService.requireUser(LECTURER_ID)).thenReturn(user(LECTURER_ID, Role.LECTURER, "Jan", "Kowalski"));
         when(threadRepository.save(any(ChatThreadEntity.class))).thenAnswer(invocation -> {
             ChatThreadEntity thread = invocation.getArgument(0);
             thread.setId(THREAD_ID);
@@ -106,8 +112,8 @@ class MessageServiceTest {
     @Test
     void createThread_shouldRejectAnUnknownParticipantBeforeSaving() {
 
-        when(userRepository.findById(CREATOR_ID)).thenReturn(Optional.of(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak")));
-        when(userRepository.findById(LECTURER_ID)).thenReturn(Optional.empty());
+        when(userService.requireUser(CREATOR_ID)).thenReturn(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak"));
+        when(userService.requireUser(LECTURER_ID)).thenThrow(new ResourceNotFoundException("User [%s] not found".formatted(LECTURER_ID)));
 
         assertThatThrownBy(() -> messageService.createThread(
                 CREATOR_ID,
@@ -123,7 +129,7 @@ class MessageServiceTest {
 
         UserEntity sender = user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak");
         ChatThreadEntity thread = thread(THREAD_ID);
-        when(userRepository.findById(CREATOR_ID)).thenReturn(Optional.of(sender));
+        when(userService.requireUser(CREATOR_ID)).thenReturn(sender);
         when(threadRepository.findById(THREAD_ID)).thenReturn(Optional.of(thread));
         when(participantRepository.findOtherParticipantsByRole(THREAD_ID, CREATOR_ID, Role.LECTURER))
                 .thenReturn(List.of(LECTURER_ID));
@@ -152,7 +158,7 @@ class MessageServiceTest {
     void sendMessage_shouldBufferANonUrgentStudentMessageToALecturerOutsideWorkingHours() {
 
         messageService = serviceAt(LocalDateTime.of(2026, 11, 11, 20, 0));
-        when(userRepository.findById(CREATOR_ID)).thenReturn(Optional.of(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak")));
+        when(userService.requireUser(CREATOR_ID)).thenReturn(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak"));
         when(threadRepository.findById(THREAD_ID)).thenReturn(Optional.of(thread(THREAD_ID)));
         when(participantRepository.findOtherParticipantsByRole(THREAD_ID, CREATOR_ID, Role.LECTURER))
                 .thenReturn(List.of(LECTURER_ID));
@@ -174,7 +180,7 @@ class MessageServiceTest {
     void sendMessage_shouldDeliverAnUrgentMessageOutsideWorkingHours() {
 
         messageService = serviceAt(LocalDateTime.of(2026, 11, 11, 20, 0));
-        when(userRepository.findById(CREATOR_ID)).thenReturn(Optional.of(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak")));
+        when(userService.requireUser(CREATOR_ID)).thenReturn(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak"));
         when(threadRepository.findById(THREAD_ID)).thenReturn(Optional.of(thread(THREAD_ID)));
         when(participantRepository.findOtherParticipantsByRole(THREAD_ID, CREATOR_ID, Role.LECTURER))
                 .thenReturn(List.of(LECTURER_ID));
@@ -209,8 +215,7 @@ class MessageServiceTest {
     @Test
     void sendMessage_shouldFailWhenTheThreadDoesNotExist() {
 
-        when(userRepository.findById(CREATOR_ID)).thenReturn(Optional.of(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak")));
-        when(threadRepository.findById(THREAD_ID)).thenReturn(Optional.empty());
+        when(threadRepository.findById(THREAD_ID)).thenThrow(new ResourceNotFoundException("Chat thread [%s] not found".formatted(THREAD_ID)));
 
         assertThatThrownBy(() -> messageService.sendMessage(
                 CREATOR_ID,
@@ -218,7 +223,7 @@ class MessageServiceTest {
                 new SendMessagePayloadDTO("Hello", false)
         ))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Chat thread [%s]not found".formatted(THREAD_ID));
+                .hasMessage("Chat thread [%s] not found".formatted(THREAD_ID));
         verify(messageRepository, never()).saveAndFlush(any());
     }
 
@@ -229,8 +234,10 @@ class MessageServiceTest {
         ChatMessageEntity withoutSender = message(UUID.randomUUID(), null, "System");
         when(messageRepository.findVisible(THREAD_ID, LECTURER_ID, PageRequest.of(0, 20)))
                 .thenReturn(new PageImpl<>(List.of(fromStudent, withoutSender)));
-        when(userRepository.findAllById(Set.of(CREATOR_ID)))
-                .thenReturn(List.of(user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak")));
+        Map<UUID, UserEntity> users = new HashMap<>();
+        users.put(CREATOR_ID, user(CREATOR_ID, Role.STUDENT, "Ada", "Nowak"));
+        when(userService.getUsersDictionaryByIds(Set.of(CREATOR_ID)))
+                .thenReturn(users);
 
         Page<ChatMessageResponseDTO> page = messageService.listMessages(LECTURER_ID, THREAD_ID, PageRequest.of(0, 20));
 
@@ -313,7 +320,7 @@ class MessageServiceTest {
                 threadRepository,
                 participantRepository,
                 messageRepository,
-                userRepository,
+                userService,
                 threadAccessGuard,
                 new WorkingHoursEvaluator(clock),
                 notificationPublisher,

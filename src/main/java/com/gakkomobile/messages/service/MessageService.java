@@ -1,5 +1,8 @@
 package com.gakkomobile.messages.service;
 
+import static com.gakkomobile.exception.ExceptionErrorConstants.CHAT_THREAD_NOT_FOUND;
+import static com.gakkomobile.exception.ExceptionErrorConstants.USER_NOT_FOUND;
+import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.exception.ResourceNotFoundException;
 import com.gakkomobile.messages.domain.MessageStatus;
 import com.gakkomobile.messages.dto.ChatMessageResponseDTO;
@@ -9,6 +12,7 @@ import com.gakkomobile.messages.dto.SendMessagePayloadDTO;
 import com.gakkomobile.user.Role;
 import com.gakkomobile.user.UserEntity;
 import com.gakkomobile.user.UserRepository;
+import com.gakkomobile.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +36,7 @@ public class MessageService {
     private final ChatThreadRepository threadRepository;
     private final ChatThreadParticipantRepository participantRepository;
     private final ChatMessageRepository messageRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ThreadAccessGuard threadAccessGuard;
     private final WorkingHoursEvaluator workingHoursEvaluator;
     private final MessageNotificationPublisher notificationPublisher;
@@ -43,12 +46,12 @@ public class MessageService {
     @Transactional
     public ChatThreadSummaryResponseDTO createThread(UUID creatorId, CreateThreadRequestDTO request) {
 
-        requireUser(creatorId);
+        userService.requireUser(creatorId);
         Set<UUID> participantIds = new LinkedHashSet<>();
         participantIds.add(creatorId);
         participantIds.addAll(request.participantIds());
         for (UUID participantId : participantIds) {
-            requireUser(participantId);
+            userService.requireUser(participantId);
         }
 
         ChatThreadEntity thread = new ChatThreadEntity();
@@ -85,9 +88,9 @@ public class MessageService {
     public ChatMessageResponseDTO sendMessage(UUID senderId, UUID threadId, SendMessagePayloadDTO payload) {
 
         threadAccessGuard.requireParticipant(threadId, senderId);
-        UserEntity sender = requireUser(senderId);
+        UserEntity sender = userService.requireUser(senderId);
         ChatThreadEntity thread = threadRepository.findById(threadId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Chat thread [%s]not found", threadId)));
+                .orElseThrow(() -> new ResourceNotFoundException(CHAT_THREAD_NOT_FOUND.formatted(threadId)));
 
         boolean lecturerRecipient = !participantRepository
                 .findOtherParticipantsByRole(threadId, senderId, Role.LECTURER)
@@ -146,8 +149,7 @@ public class MessageService {
         if (senderIds.isEmpty()) {
             return Map.of();
         }
-        return userRepository.findAllById(senderIds).stream()
-                .collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+        return userService.getUsersDictionaryByIds(senderIds);
     }
 
     private String displayName(UserEntity user) {
@@ -156,11 +158,5 @@ public class MessageService {
             return null;
         }
         return String.format("%s %s", user.getFirstName(), user.getLastName());
-    }
-
-    private UserEntity requireUser(UUID userId) {
-
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("User [%s] not found", userId)));
     }
 }

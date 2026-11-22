@@ -1,4 +1,4 @@
-package com.gakkomobile.messages.config;
+package com.gakkomobile.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,7 +7,7 @@ import java.time.Clock;
 import java.time.ZoneId;
 
 @Configuration
-class MessageClockConfiguration {
+public class ClockConfiguration {
 
     @Bean
     Clock clock() {

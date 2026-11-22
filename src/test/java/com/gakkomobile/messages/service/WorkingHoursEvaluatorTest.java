@@ -30,7 +30,7 @@ class WorkingHoursEvaluatorTest {
 
         assertThat(evaluator.isWithinWorkingHours(at(2026, 11, 11, 8, 0))).isTrue();
         assertThat(evaluator.isWithinWorkingHours(at(2026, 11, 11, 16, 59))).isTrue();
-        assertThat(evaluator.isWithinWorkingHours(at(2026, 11, 13, 17, 0))).isFalse();
+        assertThat(evaluator.isWithinWorkingHours(at(2026, 11, 13, 21, 0))).isFalse();
     }
 
     @Test

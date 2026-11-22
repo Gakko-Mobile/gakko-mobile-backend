@@ -44,7 +44,7 @@ class ThreadAccessGuardTest {
 
         assertThatThrownBy(() -> threadAccessGuard.requireParticipant(THREAD_ID, USER_ID))
                 .isInstanceOf(AccessDeniedException.class)
-                .hasMessage("User is not a participant of this thread");
+                .hasMessage("User [%s] is not a participant of this thread [%s]".formatted(USER_ID, THREAD_ID));
     }
 
     @Test
@@ -65,6 +65,6 @@ class ThreadAccessGuardTest {
 
         assertThatThrownBy(() -> threadAccessGuard.requireMembership(THREAD_ID, USER_ID))
                 .isInstanceOf(AccessDeniedException.class)
-                .hasMessage("User is not a participant of this thread");
+                .hasMessage("User [%s] is not a participant of this thread [%s]".formatted(USER_ID, THREAD_ID));
     }
 }
