@@ -45,6 +45,7 @@ class SurveyNotificationPublisherTest {
         verify(notificationFacade).sendNotification(notificationCaptor.capture());
         assertThat(notificationCaptor.getValue().targetType()).isEqualTo(NotificationTargetType.ALL_STUDENTS);
         assertThat(notificationCaptor.getValue().targetId()).isNull();
+        assertThat(notificationCaptor.getValue().messageKey()).isEqualTo(com.gakkomobile.notifications.NotificationMessages.SURVEY_CREATED);
         assertThat(notificationCaptor.getValue().aggregateId()).isEqualTo(everyone.getId().toString());
     }
 
@@ -61,6 +62,21 @@ class SurveyNotificationPublisherTest {
         verify(notificationFacade).sendNotification(notificationCaptor.capture());
         assertThat(notificationCaptor.getValue().targetType()).isEqualTo(NotificationTargetType.GROUP);
         assertThat(notificationCaptor.getValue().targetId()).isEqualTo("group-1");
+        assertThat(notificationCaptor.getValue().messageKey()).isEqualTo(com.gakkomobile.notifications.NotificationMessages.SURVEY_CREATED);
+    }
+
+    @Test
+    void publishReminders_shouldUseTheReminderMessageKey() {
+
+        SurveyEntity survey = survey(AudienceTargetType.ALL);
+        UUID recipientId = UUID.randomUUID();
+
+        publisher.publishReminders(survey, java.util.List.of(recipientId));
+
+        ArgumentCaptor<NotificationDTO> notificationCaptor = ArgumentCaptor.forClass(NotificationDTO.class);
+        verify(notificationFacade).sendNotification(notificationCaptor.capture());
+        assertThat(notificationCaptor.getValue().messageKey()).isEqualTo(com.gakkomobile.notifications.NotificationMessages.SURVEY_REMINDER);
+        assertThat(notificationCaptor.getValue().body()).isEqualTo("Feedback");
     }
 
     private SurveyEntity survey(AudienceTargetType targetType) {

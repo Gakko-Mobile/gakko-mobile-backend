@@ -2,6 +2,7 @@ package com.gakkomobile.user;
 
 import com.gakkomobile.exception.ExceptionErrorConstants;
 import com.gakkomobile.user.dto.UserIdentifiersResponseDTO;
+import com.gakkomobile.user.exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -178,5 +181,31 @@ class UserServiceTest {
         assertThat(result).isEmpty();
         verify(userRepository).searchByFullNameOrIndex(searchQuery, pageable);
         verifyNoInteractions(userMapper);
+    }
+
+    @Test
+    void updateAppLanguage_shouldPersistPolishAndEnglish() {
+
+        UUID userId = UUID.randomUUID();
+        UserEntity user = new UserEntity();
+        user.setId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateAppLanguage(userId, AppLanguage.EN);
+        assertThat(user.getAppLanguage()).isEqualTo(AppLanguage.EN);
+
+        userService.updateAppLanguage(userId, AppLanguage.PL);
+        assertThat(user.getAppLanguage()).isEqualTo(AppLanguage.PL);
+        verify(userRepository, org.mockito.Mockito.times(2)).save(user);
+    }
+
+    @Test
+    void updateAppLanguage_shouldRejectAMissingUser() {
+
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateAppLanguage(userId, AppLanguage.EN))
+                .isInstanceOf(UserNotFoundException.class);
     }
 }

@@ -19,9 +19,9 @@ interface NotificationOutboxMapper {
     NotificationPayloadDTO toPayloadDTO(NotificationDTO dto);
 
     @Mapping(target = "eventId", source = "id")
-    @Mapping(target = "title", source = "payload.title")
     @Mapping(target = "body", source = "payload.body")
     @Mapping(target = "category", source = "payload.category")
     @Mapping(target = "targetScreen", source = "payload.targetScreen")
+    @Mapping(target = "messageKey", source = "payload.messageKey")
     NotificationEventAvro entityToAvro(NotificationOutboxEventEntity entity);
 }

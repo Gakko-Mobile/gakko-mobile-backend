@@ -50,7 +50,7 @@ class FirebaseMessagingPushServiceTest {
             given(deviceTokenRepository.findAllByUserId(USER_ID)).willReturn(Collections.emptyList());
 
             // when
-            pushService.send(notificationDTO, USER_ID);
+            pushService.send(notificationDTO, "Classroom Change", USER_ID);
 
             // then
             then(deviceTokenRepository).should().findAllByUserId(USER_ID);
@@ -77,7 +77,7 @@ class FirebaseMessagingPushServiceTest {
                     .willReturn("projects/test/messages/12345");
 
             // when
-            pushService.send(notificationDTO, USER_ID);
+            pushService.send(notificationDTO, "Classroom Change", USER_ID);
 
             // then
             ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -107,7 +107,7 @@ class FirebaseMessagingPushServiceTest {
                     .willThrow(unregisteredException);
 
             // when
-            pushService.send(notificationDTO, USER_ID);
+            pushService.send(notificationDTO, "Classroom Change", USER_ID);
 
             // then
             then(deviceTokenRepository).should()
@@ -129,7 +129,7 @@ class FirebaseMessagingPushServiceTest {
                     .willThrow(genericException);
 
             // when
-            pushService.send(notificationDTO, USER_ID);
+            pushService.send(notificationDTO, "Classroom Change", USER_ID);
 
             // then
             then(deviceTokenRepository).should(never())
@@ -139,7 +139,6 @@ class FirebaseMessagingPushServiceTest {
 
     private NotificationDTO createNotificationDTO() {
         return NotificationDTO.builder()
-                .title("Classroom Change")
                 .body("Class moved to room A203")
                 .category("ACADEMIC")
                 .targetScreen("calendar-screen")

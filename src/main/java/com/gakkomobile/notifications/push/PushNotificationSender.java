@@ -6,5 +6,5 @@ import java.util.UUID;
 
 public interface PushNotificationSender {
 
-    void send(NotificationDTO notificationDTO, UUID targetId);
+    void send(NotificationDTO notificationDTO, String title, UUID targetId);
 }

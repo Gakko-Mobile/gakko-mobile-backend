@@ -10,9 +10,9 @@
     { "name": "eventType", "type": "string" },
     { "name": "targetType", "type": "string" },
     { "name": "targetId", "type": ["null", "string"], "default": null },
-    { "name": "title", "type": "string" },
     { "name": "body", "type": "string" },
     { "name": "category", "type": "string" },
-    { "name": "targetScreen", "type": ["null", "string"], "default": null }
+    { "name": "targetScreen", "type": ["null", "string"], "default": null },
+    { "name": "messageKey", "type": ["null", "string"], "default": null }
   ]
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Locale;
 import java.util.UUID;
 
 
@@ -30,17 +31,19 @@ public class InAppNotificationController {
     @GetMapping
     public ResponseEntity<Page<InAppNotificationResponseDTO>> getNotifications(
             @AuthenticationPrincipal UserEntity currentUser,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            Locale locale) {
 
-        Page<InAppNotificationResponseDTO> notifications = notificationService.getNotifications(currentUser.getId(), pageable);
+        Page<InAppNotificationResponseDTO> notifications = notificationService.getNotifications(currentUser.getId(), pageable, locale);
         return ResponseEntity.ok(notifications);
     }
 
     @GetMapping("/{notificationId}")
     public ResponseEntity<InAppNotificationResponseDTO> getNotificationById(@AuthenticationPrincipal UserEntity currentUser,
-                                                                            @PathVariable UUID notificationId) {
+                                                                            @PathVariable UUID notificationId,
+                                                                            Locale locale) {
 
-        return ResponseEntity.ok(notificationService.getNotificationById(notificationId, currentUser.getId()));
+        return ResponseEntity.ok(notificationService.getNotificationById(notificationId, currentUser.getId(), locale));
     }
 
     @PatchMapping("/{notificationId}")

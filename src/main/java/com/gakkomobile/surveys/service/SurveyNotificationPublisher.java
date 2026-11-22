@@ -3,6 +3,7 @@ package com.gakkomobile.surveys.service;
 import com.gakkomobile.common.event.EventActionType;
 import com.gakkomobile.common.event.EventAggregationType;
 import com.gakkomobile.notifications.NotificationCategory;
+import com.gakkomobile.notifications.NotificationMessages;
 import com.gakkomobile.notifications.NotificationFacade;
 import com.gakkomobile.notifications.dto.NotificationDTO;
 import com.gakkomobile.notifications.outbox.NotificationTargetType;
@@ -42,8 +43,8 @@ class SurveyNotificationPublisher {
                     .eventType(EventActionType.SURVEY_REMINDER)
                     .targetType(NotificationTargetType.USER)
                     .targetId(recipientIdentifier.toString())
-                    .title("Survey reminder")
                     .body(survey.getTitle())
+                    .messageKey(NotificationMessages.SURVEY_REMINDER)
                     .category(NotificationCategory.EVENTS_STUDENT.name())
                     .targetScreen(SURVEY_SCREEN)
                     .build());
@@ -92,8 +93,8 @@ class SurveyNotificationPublisher {
                 .eventType(EventActionType.SURVEY_CREATED)
                 .targetType(targetType)
                 .targetId(targetId)
-                .title("New survey")
                 .body(survey.getTitle())
+                .messageKey(NotificationMessages.SURVEY_CREATED)
                 .category(NotificationCategory.EVENTS_STUDENT.name())
                 .targetScreen(SURVEY_SCREEN)
                 .build();

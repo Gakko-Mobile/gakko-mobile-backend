@@ -27,8 +27,8 @@ class InAppNotificationEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "title", nullable = false, length = 200)
-    private String title;
+    @Column(name = "message_key", length = 100)
+    private String messageKey;
 
     @Column(name = "body", nullable = false, columnDefinition = "TEXT")
     private String body;
