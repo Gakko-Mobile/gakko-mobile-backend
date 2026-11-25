@@ -46,6 +46,11 @@ class UserNotificationSettingsEntity {
     @Column(name = "events_student", nullable = false, columnDefinition = "notification_mode")
     private NotificationMode eventsStudent = NotificationMode.INAPP_ONLY;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "communication", nullable = false, columnDefinition = "notification_mode")
+    private NotificationMode communication = NotificationMode.PUSH_AND_INAPP;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 

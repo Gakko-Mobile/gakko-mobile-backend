@@ -15,6 +15,8 @@ public record UpdateNotificationSettingsRequestDTO(
         @NotNull
         NotificationMode financialNewCharges,
         @NotNull
-        NotificationMode eventsStudent
+        NotificationMode eventsStudent,
+        @NotNull
+        NotificationMode communication
 ) {
 }

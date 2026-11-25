@@ -1,6 +1,8 @@
 package com.gakkomobile.user;
 
+import static com.gakkomobile.exception.ExceptionErrorConstants.USER_NOT_FOUND;
 import com.gakkomobile.exception.ExceptionErrorConstants;
+import com.gakkomobile.exception.ResourceNotFoundException;
 import com.gakkomobile.user.dto.UserIdentifiersResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,13 +24,9 @@ public class UserService {
     private final UserRepository repository;
     private final UserMapper userMapper;
 
-    public List<UserIdentifiersResponseDTO> searchUserIdentifiers(
-            Role userRole,
-            String nameIndexSearch,
-            Role selectedRole,
-            int pageNum,
-            Integer limit
-    ) {
+    public List<UserIdentifiersResponseDTO> searchUserIdentifiers(Role userRole, String nameIndexSearch,
+            Role selectedRole, int pageNum, Integer limit) {
+
         Pageable pageable = PageRequest.of(pageNum, limit);
 
         List<UserEntity> users = switch (selectedRole) {
@@ -44,5 +47,17 @@ public class UserService {
         return users.stream()
                 .map(userMapper::toDto)
                 .toList();
+    }
+
+    public Map<UUID, UserEntity> getUsersDictionaryByIds(Set<UUID> ids) {
+
+        return repository.findAllById(ids).stream()
+                .collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+    }
+
+    public UserEntity requireUser(UUID userId) {
+
+        return repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND, userId)));
     }
 }
