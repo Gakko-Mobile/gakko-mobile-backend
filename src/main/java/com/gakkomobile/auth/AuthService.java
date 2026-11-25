@@ -95,7 +95,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
         UserEntity user = repository.findByEmail(request.email())
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -129,7 +129,7 @@ public class AuthService {
         String userEmail = jwtService.extractUsername(refreshTokenFromRequest);
         if (!Objects.isNull(userEmail)) {
             UserEntity user = repository.findByEmail(userEmail)
-                    .orElseThrow(UserNotFoundException::new);
+                    .orElseThrow(() -> new UserNotFoundException(userEmail));
 
             String actualRefreshToken = user.getRefreshToken();
             if (!actualRefreshToken.equals(refreshTokenFromRequest)) {

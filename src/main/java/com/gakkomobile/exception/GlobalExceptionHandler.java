@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                ExceptionErrorConstants.USER_NOT_FOUND,
+                ExceptionErrorConstants.USER_NOT_FOUND.formatted(ex.getDetail()),
                 LocalDateTime.now(),
                 null
         );
