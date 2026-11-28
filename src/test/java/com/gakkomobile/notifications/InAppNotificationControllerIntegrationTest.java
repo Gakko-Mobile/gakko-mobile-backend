@@ -321,7 +321,7 @@ class InAppNotificationControllerIntegrationTest extends BaseIntegrationTest {
 
         InAppNotificationEntity notification = new InAppNotificationEntity();
         notification.setUserId(userId);
-        notification.setTitle(title);
+        notification.setMessageKey(title);
         notification.setBody(body);
         notification.setCategory(NotificationCategory.ACADEMIC_GRADES.toString());
         notification.setRead(isRead);

@@ -6,6 +6,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.gakkomobile.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import com.gakkomobile.notifications.dto.InAppNotificationReadInfoResponseDTO;
 import com.gakkomobile.notifications.dto.InAppNotificationResponseDTO;
 import com.gakkomobile.notifications.dto.NotificationDTO;
 import com.gakkomobile.notifications.outbox.NotificationOutboxEventFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,9 +39,20 @@ class NotificationServiceTest {
     private NotificationOutboxEventFactory notificationOutboxEventFactory;
     @Mock
     private NotificationMapper notificationMapper;
+    @Mock
+    private NotificationTextResolver notificationTextResolver;
 
     @InjectMocks
     private NotificationService notificationService;
+
+    @BeforeEach
+    void keepStoredTitleWhenTheResolverDoesNotChangeIt() {
+
+        lenient().when(notificationTextResolver.resolve(
+                org.mockito.ArgumentMatchers.nullable(String.class),
+                org.mockito.ArgumentMatchers.any()
+        )).thenAnswer(invocation -> invocation.getArgument(0));
+    }
 
     @Test
     void putNotificationToOutbox_shouldDelegateToOutboxEventFactory() {
@@ -74,7 +88,7 @@ class NotificationServiceTest {
         when(notificationRepository.findAllByUserId(uuid(0), Pageable.unpaged())).thenReturn(Page.empty());
 
         // when
-        Page<InAppNotificationResponseDTO> notifications = notificationService.getNotifications(uuid(0), Pageable.unpaged());
+        Page<InAppNotificationResponseDTO> notifications = notificationService.getNotifications(uuid(0), Pageable.unpaged(), Locale.forLanguageTag("pl"));
 
         // then
         List<InAppNotificationResponseDTO> content = notifications.getContent();
@@ -91,7 +105,7 @@ class NotificationServiceTest {
         when(notificationRepository.findAllByUserId(uuid(0), Pageable.unpaged())).thenReturn(new PageImpl<>(existingNotifications));
 
         // when
-        Page<InAppNotificationResponseDTO> notifications = notificationService.getNotifications(uuid(0), Pageable.unpaged());
+        Page<InAppNotificationResponseDTO> notifications = notificationService.getNotifications(uuid(0), Pageable.unpaged(), Locale.forLanguageTag("pl"));
 
         // then
         List<InAppNotificationResponseDTO> content = notifications.getContent();
@@ -110,7 +124,7 @@ class NotificationServiceTest {
         when(notificationMapper.entityToResponseDTO(existingNotification)).thenReturn(expectedResponse);
 
         // when
-        InAppNotificationResponseDTO notification = notificationService.getNotificationById(uuid(0), uuid(1));
+        InAppNotificationResponseDTO notification = notificationService.getNotificationById(uuid(0), uuid(1), Locale.forLanguageTag("pl"));
 
         // then
         assertThat(notification).isNotNull();
@@ -124,7 +138,7 @@ class NotificationServiceTest {
         when(notificationRepository.findByIdAndUserId(uuid(0), uuid(1))).thenReturn(Optional.empty());
 
         // when & then
-        assertThrows(ResourceNotFoundException.class, () -> notificationService.getNotificationById(uuid(0), uuid(1)));
+        assertThrows(ResourceNotFoundException.class, () -> notificationService.getNotificationById(uuid(0), uuid(1), Locale.forLanguageTag("pl")));
     }
 
     @Test
@@ -167,5 +181,29 @@ class NotificationServiceTest {
         assertThat(response.isRead()).isEqualTo(!isRead);
         verify(notificationRepository).findByIdAndUserId(uuid(0), uuid(1));
 
+    }
+
+    @Test
+    void getNotifications_shouldResolveTheTitleFromAcceptLanguage() {
+
+        InAppNotificationEntity entity = InAppNotificationEntity.builder()
+                .messageKey(NotificationMessages.MESSAGE_CREATED)
+                .build();
+        InAppNotificationResponseDTO mapped = InAppNotificationResponseDTO.builder()
+                .body("Hello")
+                .build();
+        when(notificationRepository.findAllByUserId(uuid(0), Pageable.unpaged())).thenReturn(new PageImpl<>(java.util.List.of(entity)));
+        when(notificationMapper.entityToResponseDTO(entity)).thenReturn(mapped);
+        when(notificationTextResolver.resolve(NotificationMessages.MESSAGE_CREATED, Locale.ENGLISH))
+                .thenReturn("New message");
+
+        Page<InAppNotificationResponseDTO> notifications = notificationService.getNotifications(
+                uuid(0),
+                Pageable.unpaged(),
+                Locale.ENGLISH
+        );
+
+        assertThat(notifications.getContent().getFirst().title()).isEqualTo("New message");
+        assertThat(notifications.getContent().getFirst().body()).isEqualTo("Hello");
     }
 }

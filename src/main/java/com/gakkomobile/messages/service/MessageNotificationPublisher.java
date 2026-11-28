@@ -3,6 +3,7 @@ package com.gakkomobile.messages.service;
 import com.gakkomobile.common.event.EventActionType;
 import com.gakkomobile.common.event.EventAggregationType;
 import com.gakkomobile.notifications.NotificationCategory;
+import com.gakkomobile.notifications.NotificationMessages;
 import com.gakkomobile.notifications.NotificationFacade;
 import com.gakkomobile.notifications.dto.NotificationDTO;
 import com.gakkomobile.notifications.outbox.NotificationTargetType;
@@ -33,8 +34,8 @@ class MessageNotificationPublisher {
                     .eventType(EventActionType.MESSAGE_CREATED)
                     .targetType(NotificationTargetType.USER)
                     .targetId(participant.getUserId().toString())
-                    .title("New message")
                     .body(preview(message.getContent()))
+                    .messageKey(NotificationMessages.MESSAGE_CREATED)
                     .category(NotificationCategory.COMMUNICATION.name())
                     .targetScreen(TARGET_SCREEN)
                     .build());

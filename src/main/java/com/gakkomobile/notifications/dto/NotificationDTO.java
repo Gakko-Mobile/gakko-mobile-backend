@@ -35,10 +35,6 @@ import lombok.Builder;
  *                 or system-wide.
  *                 Example: {@code "s12345"} (student ID) or
  *                 {@code "WD-K23-01"} (group code).
- * @param title the user-facing title displayed in mobile push banners
- *              and notification lists.
- *              Example: {@code "New grade posted in ICK"},
- *              {@code "Room change alert"}.
  * @param body the detailed message content describing the event
  *             to the user.
  *             Example: {@code "You received a 5.0 in ICK Labs from Dr. Kowalski."}
@@ -51,6 +47,8 @@ import lombok.Builder;
  *                     within the React Native mobile application.
  *                     Example: {@code "grades-screen"},
  *                     {@code "calendar-screen"}, {@code "payments-screen"}.
+ * @param messageKey the message code resolved to a title in the recipient's
+ *                   app language. Example: {@code "notification.message.created"}.
  */
 @Builder
 public record NotificationDTO(
@@ -59,9 +57,9 @@ public record NotificationDTO(
         EventActionType eventType,
         NotificationTargetType targetType,
         String targetId,
-        String title,
         String body,
         String category,
-        String targetScreen
+        String targetScreen,
+        String messageKey
 ) {
 }

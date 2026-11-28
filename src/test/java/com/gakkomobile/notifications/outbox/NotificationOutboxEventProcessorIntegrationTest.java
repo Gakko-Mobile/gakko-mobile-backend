@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.gakkomobile.BaseIntegrationTest;
 import com.gakkomobile.avro.NotificationEventAvro;
 import com.gakkomobile.common.event.EventAggregationType;
+import com.gakkomobile.notifications.NotificationCategory;
+import com.gakkomobile.notifications.NotificationMessages;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import org.apache.kafka.clients.consumer.CloseOptions;
@@ -101,9 +103,9 @@ class NotificationOutboxEventProcessorIntegrationTest extends BaseIntegrationTes
         String key2 = "survey-" + uuid(4);
 
         NotificationOutboxEventEntity entity1 = persistAndCommit(
-                createOutboxEntity(EventAggregationType.SCHEDULE.toString(), key1, "Classroom Change", false));
+                createOutboxEntity(EventAggregationType.SCHEDULE.toString(), key1, NotificationMessages.MESSAGE_CREATED, false));
         NotificationOutboxEventEntity entity2 = persistAndCommit(
-                createOutboxEntity(EventAggregationType.SURVEY.toString(), key2, "New Survey Added", false));
+                createOutboxEntity(EventAggregationType.SURVEY.toString(), key2, NotificationMessages.SURVEY_CREATED, false));
 
         // when
         outboxProcessor.processOutboxNotifications();
@@ -126,8 +128,8 @@ class NotificationOutboxEventProcessorIntegrationTest extends BaseIntegrationTes
                     drainConsumer();
 
                     assertThat(received).extracting(ConsumerRecord::key).contains(key1, key2);
-                    assertThat(titleFor(key1)).isEqualTo("Classroom Change");
-                    assertThat(titleFor(key2)).isEqualTo("New Survey Added");
+                    assertThat(messageKeyFor(key1)).isEqualTo(NotificationMessages.MESSAGE_CREATED);
+                    assertThat(messageKeyFor(key2)).isEqualTo(NotificationMessages.SURVEY_CREATED);
                 });
     }
 
@@ -156,17 +158,15 @@ class NotificationOutboxEventProcessorIntegrationTest extends BaseIntegrationTes
         testConsumer.poll(Duration.ofMillis(500)).forEach(received::add);
     }
 
-    private String titleFor(String key) {
+    private String messageKeyFor(String key) {
         return received.stream()
                 .filter(r -> key.equals(r.key()))
-                .map(r -> String.valueOf(r.value().getTitle()))
+                .map(r -> String.valueOf(r.value().getMessageKey()))
                 .findFirst()
                 .orElseThrow();
     }
 
-    private NotificationOutboxEventEntity createOutboxEntity(String aggregateType,
-                                                             String aggregateId,
-                                                             String title,
+    private NotificationOutboxEventEntity createOutboxEntity(String aggregateType, String aggregateId, String messageKey,
                                                              boolean processed) {
 
         NotificationOutboxEventEntity entity = new NotificationOutboxEventEntity();
@@ -175,7 +175,7 @@ class NotificationOutboxEventProcessorIntegrationTest extends BaseIntegrationTes
         entity.setEventType("EVENT_CREATED");
         entity.setTargetType(NotificationTargetType.USER);
         entity.setTargetId(currentUser.getId().toString());
-        entity.setPayload(new NotificationPayloadDTO(title, "Body", "ACADEMIC_GROUPS", "home"));
+        entity.setPayload(new NotificationPayloadDTO("Body", NotificationCategory.EVENTS_STUDENT.toString(), "home", messageKey));
         entity.setProcessed(processed);
         return entity;
     }

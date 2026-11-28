@@ -42,6 +42,10 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "app_language", nullable = false, length = 3)
+    private AppLanguage appLanguage = AppLanguage.PL;
+
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 

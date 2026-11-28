@@ -9,6 +9,7 @@ import com.gakkomobile.common.event.EventActionType;
 import com.gakkomobile.common.event.EventAggregationType;
 import com.gakkomobile.notifications.NotificationCategory;
 import com.gakkomobile.notifications.NotificationFacade;
+import com.gakkomobile.notifications.NotificationMessages;
 import com.gakkomobile.notifications.dto.NotificationDTO;
 import com.gakkomobile.notifications.outbox.NotificationTargetType;
 import com.gakkomobile.utils.DatasetConstants;
@@ -56,7 +57,7 @@ class MessageNotificationPublisherTest {
         assertThat(sent.eventType()).isEqualTo(EventActionType.MESSAGE_CREATED);
         assertThat(sent.targetType()).isEqualTo(NotificationTargetType.USER);
         assertThat(sent.targetId()).isEqualTo(RECIPIENT_ID.toString());
-        assertThat(sent.title()).isEqualTo("New message");
+        assertThat(sent.messageKey()).isEqualTo(NotificationMessages.MESSAGE_CREATED);
         assertThat(sent.body()).isEqualTo("a".repeat(177) + "...");
         assertThat(sent.category()).isEqualTo(NotificationCategory.COMMUNICATION.name());
         assertThat(sent.targetScreen()).isEqualTo(MessageNotificationPublisher.TARGET_SCREEN);

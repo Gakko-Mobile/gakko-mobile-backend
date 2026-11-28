@@ -1,10 +1,14 @@
 package com.gakkomobile.user;
 
+import com.gakkomobile.user.dto.UpdateAppLanguageRequestDTO;
 import com.gakkomobile.user.dto.UserIdentifiersResponseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,5 +38,15 @@ public class UserController {
         );
 
         return ResponseEntity.ok(responseBody);
+    }
+
+    @PatchMapping("/me/language")
+    public ResponseEntity<Void> updateAppLanguage(
+            @AuthenticationPrincipal UserEntity user,
+            @Valid @RequestBody UpdateAppLanguageRequestDTO request
+    ) {
+
+        userService.updateAppLanguage(user.getId(), request.language());
+        return ResponseEntity.noContent().build();
     }
 }

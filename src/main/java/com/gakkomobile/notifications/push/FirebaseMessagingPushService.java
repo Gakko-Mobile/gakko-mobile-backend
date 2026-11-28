@@ -22,7 +22,7 @@ public class FirebaseMessagingPushService implements PushNotificationSender {
 
     private final FirebaseMessagingClient firebaseMessagingClient;
 
-    public void send(NotificationDTO notificationDTO, UUID userId) {
+    public void send(NotificationDTO notificationDTO, String title, UUID userId) {
 
         List<UserDeviceTokenEntity> tokens = deviceTokenRepository.findAllByUserId(userId);
 
@@ -35,20 +35,20 @@ public class FirebaseMessagingPushService implements PushNotificationSender {
         FirebaseMessageContextDTO messageContextDTO = new FirebaseMessageContextDTO(notificationDTO.category(), notificationDTO.targetScreen());
 
         for (UserDeviceTokenEntity token : tokens) {
-            Message message = buildMessage(token.getToken(), notificationDTO, messageContextDTO);
+            Message message = buildMessage(token.getToken(), title, notificationDTO, messageContextDTO);
             sendMessageToFirebase(message, token, userId.toString());
         }
     }
 
     private record FirebaseMessageContextDTO(String category, String targetScreen) { }
 
-    private Message buildMessage(String deviceToken, NotificationDTO notificationDTO,
+    private Message buildMessage(String deviceToken, String title, NotificationDTO notificationDTO,
                                  FirebaseMessageContextDTO messageContextDTO) {
 
         Message.Builder messageBuilder = Message.builder()
                 .setFid(deviceToken)
                 .setNotification(Notification.builder()
-                        .setTitle(notificationDTO.title())
+                        .setTitle(title)
                         .setBody(notificationDTO.body())
                         .build());
 

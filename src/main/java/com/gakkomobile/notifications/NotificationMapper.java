@@ -16,5 +16,6 @@ interface NotificationMapper {
     @Mapping(target = "userId", source = "targetId")
     InAppNotificationEntity dtoToEntity(NotificationDTO dto);
 
+    @Mapping(target = "title", ignore = true)
     InAppNotificationResponseDTO entityToResponseDTO(InAppNotificationEntity entity);
 }

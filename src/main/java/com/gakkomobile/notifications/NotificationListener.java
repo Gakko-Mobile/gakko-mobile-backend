@@ -4,6 +4,9 @@ import com.gakkomobile.avro.NotificationEventAvro;
 import com.gakkomobile.notifications.dto.NotificationDTO;
 import com.gakkomobile.notifications.push.PushNotificationSender;
 import com.gakkomobile.notifications.settings.UserNotificationSettingsService;
+import com.gakkomobile.user.AppLanguage;
+import com.gakkomobile.user.UserEntity;
+import com.gakkomobile.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -22,6 +25,8 @@ class NotificationListener {
     private final UserNotificationSettingsService settingsService;
     private final PushNotificationSender pushNotificationSender;
     private final NotificationMapper notificationMapper;
+    private final UserRepository userRepository;
+    private final NotificationTextResolver notificationTextResolver;
 
     @KafkaListener(
             topics = "gakko.notifications",
@@ -51,14 +56,21 @@ class NotificationListener {
             // Save in-app notification
             notificationService.createInAppNotification(notificationDTO);
 
-            // Send push notification
             if (mode == NotificationMode.PUSH_AND_INAPP) {
 
-                pushNotificationSender.send(notificationDTO, targetId);
+                pushNotificationSender.send(notificationDTO, titleFor(notificationDTO, targetId), targetId);
             }
 
         } catch (Exception e) {
             log.error("Error while consuming notification", e);
         }
+    }
+
+    private String titleFor(NotificationDTO notificationDTO, UUID userId) {
+
+        AppLanguage language = userRepository.findById(userId)
+                .map(UserEntity::getAppLanguage)
+                .orElse(AppLanguage.PL);
+        return notificationTextResolver.resolve(notificationDTO.messageKey(), language.toLocale());
     }
 }
