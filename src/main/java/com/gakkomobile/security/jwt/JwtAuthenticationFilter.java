@@ -75,16 +75,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (ExpiredJwtException e) {
             log.warn("JWT token is expired: {}", e.getMessage());
+            rejectUnauthorized(response);
+            return;
         } catch (SignatureException e) {
             log.warn("Invalid JWT signature: {}", e.getMessage());
+            rejectUnauthorized(response);
+            return;
         } catch (MalformedJwtException e) {
             log.warn("Invalid JWT token structure: {}", e.getMessage());
+            rejectUnauthorized(response);
+            return;
         } catch (UnsupportedJwtException e) {
             log.warn("Unsupported JWT token: {}", e.getMessage());
+            rejectUnauthorized(response);
+            return;
         } catch (JwtException e) {
             log.warn("JWT error: {}", e.getMessage());
+            rejectUnauthorized(response);
+            return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void rejectUnauthorized(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"message\":\"Access token expired\"}");
     }
 }

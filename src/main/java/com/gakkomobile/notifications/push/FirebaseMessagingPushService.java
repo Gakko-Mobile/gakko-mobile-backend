@@ -46,7 +46,7 @@ public class FirebaseMessagingPushService implements PushNotificationSender {
                                  FirebaseMessageContextDTO messageContextDTO) {
 
         Message.Builder messageBuilder = Message.builder()
-                .setFid(deviceToken)
+                .setToken(deviceToken)
                 .setNotification(Notification.builder()
                         .setTitle(notificationDTO.title())
                         .setBody(notificationDTO.body())
@@ -56,6 +56,10 @@ public class FirebaseMessagingPushService implements PushNotificationSender {
 
             messageBuilder.putData("category", messageContextDTO.category());
             messageBuilder.putData("targetScreen", messageContextDTO.targetScreen());
+        }
+        if (Objects.nonNull(notificationDTO.aggregateId())) {
+
+            messageBuilder.putData("aggregateId", notificationDTO.aggregateId());
         }
 
         return messageBuilder.build();

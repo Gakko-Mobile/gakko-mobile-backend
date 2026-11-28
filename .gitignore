@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Firebase ###
+src/main/resources/firebase-service-account.json
+src/main/resources/firebase-service-account.json
+google-services.json
+google-services-frontend.json
+GoogleService-Info.plist

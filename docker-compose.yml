@@ -70,7 +70,7 @@ services:
       - kafka
 
     ports:
-      - "8081:8081"
+      - "18081:8081"
 
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry

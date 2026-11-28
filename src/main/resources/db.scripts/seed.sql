@@ -103,7 +103,7 @@ VALUES ('019ff6f0-0000-7000-8000-000000000061', 'PRG', 'Advanced Java Programmin
        ('019ff6f0-0000-7000-8000-000000000069', 'ENG', 'English B22', 'LANGUAGE_COURSE', 3),
        ('019ff6f0-0000-7000-8000-00000000006a', 'DIP', 'Diploma Seminar', 'DIPLOMA_PROJECT', 10);
 
--- 8. GROUP CLASSES (10 records scheduled for today/tomorrow)
+-- 8. GROUP CLASSES (14 records scheduled across test dates)
 INSERT INTO group_classes (id, subject_id, room_id, start_timestamp, end_timestamp, ms_teams_code)
 VALUES
     -- Classes for October 3, 2026 (For testing the getDailySchedule method)
@@ -127,9 +127,18 @@ VALUES
     ('019ff6f0-0000-7000-8000-000000000079', '019ff6f0-0000-7000-8000-000000000068',
      '019ff6f0-0000-7000-8000-000000000059', '2026-10-04 13:30:00+02', '2026-10-04 15:00:00+02', null),
     ('019ff6f0-0000-7000-8000-00000000007a', '019ff6f0-0000-7000-8000-00000000006a',
-     '019ff6f0-0000-7000-8000-00000000005a', '2026-10-04 15:15:00+02', '2026-10-04 16:45:00+02', 'teams-dip-1');
+     '019ff6f0-0000-7000-8000-00000000005a', '2026-10-04 15:15:00+02', '2026-10-04 16:45:00+02', 'teams-dip-1'),
+    -- Classes for October 19, 2026 (Monday) — Danisa Novikova
+    ('019ff6f0-0000-7000-8000-00000000008b', '019ff6f0-0000-7000-8000-000000000061',
+     '019ff6f0-0000-7000-8000-000000000051', '2026-10-19 08:15:00+02', '2026-10-19 09:45:00+02', 'teams-prg-2'),
+    ('019ff6f0-0000-7000-8000-00000000008c', '019ff6f0-0000-7000-8000-000000000062',
+     '019ff6f0-0000-7000-8000-000000000053', '2026-10-19 10:00:00+02', '2026-10-19 11:30:00+02', null),
+    ('019ff6f0-0000-7000-8000-00000000008d', '019ff6f0-0000-7000-8000-000000000064',
+     '019ff6f0-0000-7000-8000-000000000054', '2026-10-19 11:45:00+02', '2026-10-19 13:15:00+02', null),
+    ('019ff6f0-0000-7000-8000-00000000008e', '019ff6f0-0000-7000-8000-000000000065',
+     '019ff6f0-0000-7000-8000-000000000051', '2026-10-19 13:30:00+02', '2026-10-19 15:00:00+02', 'teams-sec-1');
 
--- 9. ACADEMIC GROUPS -> GROUP CLASSES (10 records: Bridge Table)
+-- 9. ACADEMIC GROUPS -> GROUP CLASSES (14 records: Bridge Table)
 INSERT INTO academic_groups_group_classes (class_id, group_id)
 VALUES
     -- Mapping Danisa's primary group (WIs I.1) to several classes
@@ -139,6 +148,12 @@ VALUES
 
     -- Mapping Danisa's ITN group (WIs II.1) to an advanced class
     ('019ff6f0-0000-7000-8000-000000000077', '019ff6f0-0000-7000-8000-000000000044'),
+
+    -- October 19, 2026: Danisa's regular group (WIs I.1) and ITN group (WIs II.1)
+    ('019ff6f0-0000-7000-8000-00000000008b', '019ff6f0-0000-7000-8000-000000000041'),
+    ('019ff6f0-0000-7000-8000-00000000008c', '019ff6f0-0000-7000-8000-000000000041'),
+    ('019ff6f0-0000-7000-8000-00000000008d', '019ff6f0-0000-7000-8000-000000000041'),
+    ('019ff6f0-0000-7000-8000-00000000008e', '019ff6f0-0000-7000-8000-000000000044'),
 
     -- Mapping other groups to classes
     ('019ff6f0-0000-7000-8000-000000000074', '019ff6f0-0000-7000-8000-000000000042'),
@@ -179,3 +194,55 @@ VALUES
      '019ff6f0-0000-7000-8000-000000000022', '2026-10-22 14:00:00+02', '2026-10-22 16:00:00+02', '2026-09-15 10:00:00+02'),
     ('019ff6f0-0000-7000-8000-00000000008a', 'E-Sports Team', 'PJATK League of Legends Finals Watch Party',
      '019ff6f0-0000-7000-8000-000000000021', '2026-10-25 17:00:00+02', '2026-10-25 22:00:00+02', '2026-09-15 10:00:00+02');
+
+-- 11. SURVEY assigned only to Danisa Novikova (her ITN group WIs II.1)
+INSERT INTO surveys (id, creator_id, title, description, questions, status, target_type, target_ids,
+                     is_anonymous, allow_resubmission, require_login, show_results_to_students,
+                     randomize_question_order, response_limit, confirmation_message, opens_at, closes_at,
+                     reminder_intervals, created_at, updated_at)
+VALUES ('019ff6f0-0000-7000-8000-000000000091', '019ff6f0-0000-7000-8000-000000000031',
+        'Cybersecurity Basics — Course Feedback',
+        'Short feedback for the Cybersecurity Basics classes in WIs II.1.',
+        '[
+          {
+            "id": "q1",
+            "type": "SINGLE",
+            "title": "How clear were the cybersecurity lectures?",
+            "isRequired": true,
+            "options": ["Very clear", "Clear", "Neutral", "Unclear"],
+            "skipRules": []
+          },
+          {
+            "id": "q2",
+            "type": "SCALE",
+            "title": "Rate the difficulty of the lab exercises",
+            "isRequired": true,
+            "scaleMin": 1,
+            "scaleMax": 5,
+            "labelMin": "Too easy",
+            "labelMax": "Too hard",
+            "skipRules": []
+          },
+          {
+            "id": "q3",
+            "type": "TEXT",
+            "title": "What should the next lab cover?",
+            "isRequired": false,
+            "skipRules": []
+          }
+        ]'::jsonb,
+        'COLLECTING',
+        'GROUPS',
+        '["019ff6f0-0000-7000-8000-000000000044"]'::jsonb,
+        false,
+        false,
+        true,
+        false,
+        false,
+        null,
+        'Thank you. Your course feedback has been submitted.',
+        '2026-10-01 08:00:00+02',
+        '2026-12-15 23:59:59+02',
+        '[3, 1]'::jsonb,
+        '2026-10-01 08:00:00+02',
+        '2026-10-01 08:00:00+02');

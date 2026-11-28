@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface GroupClassMapper {
+
+    ZoneId SCHEDULE_ZONE = ZoneId.of("Europe/Warsaw");
 
     @Mapping(source = "subject.name", target = "subjectName")
     @Mapping(source = "subject.code", target = "subjectCode")
@@ -39,12 +42,14 @@ public interface GroupClassMapper {
 
     @Named("toDateString")
     default String toDateString(OffsetDateTime dateTime) {
-        return Objects.isNull(dateTime) ? null : dateTime.toLocalDate().toString();
+        return Objects.isNull(dateTime) ? null : dateTime.atZoneSameInstant(SCHEDULE_ZONE).toLocalDate().toString();
     }
 
     @Named("toTimeString")
     default String toTimeString(OffsetDateTime dateTime) {
-        return Objects.isNull(dateTime) ? null : dateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+        return Objects.isNull(dateTime)
+                ? null
+                : dateTime.atZoneSameInstant(SCHEDULE_ZONE).toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
     @Named("formatClassType")
